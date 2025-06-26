@@ -1,13 +1,15 @@
 const User = require('../models/userModel');
 const generateToken = require('../utils/generateToken');
 
-// 🟢 SIGNUP
+
+// 🟢 SIGNUP with phoneNumber check per userRole
 const signupUser = async (req, res) => {
   try {
     const { name, email, password, phoneNumber, userRole } = req.body;
 
-    const existing = await User.findOne({ email });
-    if (existing) {
+    // Check if email already registered
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
       return res.status(400).json({
         success: false,
         message: 'Email already registered',
@@ -15,6 +17,19 @@ const signupUser = async (req, res) => {
       });
     }
 
+    // ✅ Check for phone number duplication based on userRole
+    if (phoneNumber) {
+      const existingPhone = await User.findOne({ phoneNumber, userRole: userRole || 'user' });
+      if (existingPhone) {
+        return res.status(400).json({
+          success: false,
+          message: `Phone number already registered for ${userRole || 'user'}`,
+          data: null
+        });
+      }
+    }
+
+    // Create user
     const user = await User.create({
       name,
       email,
@@ -45,6 +60,9 @@ const signupUser = async (req, res) => {
     });
   }
 };
+
+
+
 
 // 🔐 LOGIN WITH EMAIL
 const loginByEmail = async (req, res) => {
