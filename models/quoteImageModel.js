@@ -2,8 +2,9 @@
 const mongoose = require('mongoose');
 
 const quoteImageSchema = new mongoose.Schema({
-    imageUrl: { type: String, required: true },
-    uploadedBy: { type: String }, // optional: "admin", "user", etc.
+
+    image: { type: String, required: true },
+    uploadedBy: { type: String }, 
     langId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Language',
@@ -15,6 +16,7 @@ const quoteImageSchema = new mongoose.Schema({
         required: true
     },
     createdAt: { type: Date, default: Date.now }
+
 });
 
 module.exports = mongoose.model('QuoteImage', quoteImageSchema);
