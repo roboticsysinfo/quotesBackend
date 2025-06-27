@@ -1,6 +1,6 @@
+// routes/quoteRoutes.js
 const express = require('express');
 const router = express.Router();
-const upload = require('../middlewares/upload');
 
 const {
   createQuote,
@@ -13,10 +13,10 @@ const {
 } = require('../controllers/quoteController');
 
 // Create quote
-router.post('/create-quote', upload.single('image'), createQuote);
+router.post('/create-quote', createQuote);
 
 // Update quote
-router.put('/update/quote/:id', upload.single('image'), updateQuote);
+router.put('/update/quote/:id', updateQuote);
 
 // Get all quotes
 router.get('/quotes', getQuotes);
@@ -30,7 +30,7 @@ router.get('/quote/by-language/:langId', getQuotesByLanguage);
 // Get by category
 router.get('/quote/by-quote-category/:categoryId', getQuotesByCategory);
 
-// Delete
+// Delete quote
 router.delete('/delete/quote/:id', deleteQuote);
 
 module.exports = router;

@@ -7,7 +7,8 @@ const path = require('path');
 const languageRoutes = require("./routes/languageRoutes")
 const quoteCategoryRoutes = require("./routes/quoteCategoryRoutes");
 const favQuoteRoutes = require("./routes/favQuoteRoutes");
-const authRoutes = require("./routes/authRoutes")
+const authRoutes = require("./routes/authRoutes");
+const quoteImageRoutes = require('./routes/quoteImageRoutes');
 
 const app = express();
 
@@ -18,7 +19,6 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // URL parameters parsing
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -27,10 +27,11 @@ connectDB();
 
 // ========= Routes=============
 
+app.use('/api/auth', authRoutes);
 app.use('/api', languageRoutes);
 app.use('/api', quoteCategoryRoutes);
 app.use('/api/', favQuoteRoutes);
-app.use('/api/auth', authRoutes);
+app.use('/api', quoteImageRoutes);
 
 // ========= Routes end=============
 

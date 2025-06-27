@@ -1,22 +1,17 @@
+// controllers/quoteController.js
 const Quote = require('../models/quoteModel');
-const path = require('path');
 
 // Create Quote
 const createQuote = async (req, res) => {
   try {
-    const { quote, author, langId, categoryId } = req.body;
-    let imagePath = "";
-
-    if (req.file) {
-      imagePath = `/uploads/quotes/${req.file.filename}`;
-    }
+    const { quote, author, langId, categoryId, image = "" } = req.body;
 
     const newQuote = await Quote.create({
       quote,
       author,
       langId,
       categoryId,
-      image: imagePath
+      image
     });
 
     res.status(201).json({
@@ -36,16 +31,11 @@ const createQuote = async (req, res) => {
 // Update Quote
 const updateQuote = async (req, res) => {
   try {
-    const { quote, author, langId, categoryId } = req.body;
-    const updatedFields = {
-      quote,
-      author,
-      langId,
-      categoryId
-    };
+    const { quote, author, langId, categoryId, image } = req.body;
+    const updatedFields = { quote, author, langId, categoryId };
 
-    if (req.file) {
-      updatedFields.image = `/uploads/quotes/${req.file.filename}`;
+    if (image !== undefined) {
+      updatedFields.image = image;
     }
 
     const updatedQuote = await Quote.findByIdAndUpdate(req.params.id, updatedFields, {
