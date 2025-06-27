@@ -21,10 +21,10 @@ const uploadQuoteImage = async (req, res) => {
       });
     }
 
-    const imageUrl = `/uploads/${req.file.filename}`;
+    const image = `/uploads/${req.file.filename}`;
 
     const newImage = await QuoteImage.create({
-      imageUrl,
+      image,
       uploadedBy,
       langId,
       categoryId

@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // POST /api/quote-images/upload
-router.post('/upload/quote-image/', upload.single('image'), uploadQuoteImage);
+router.post('/upload/quote-image', upload.single('image'), uploadQuoteImage);
 
 // GET /api/quote-images
 router.get('/get-quote-images', getQuoteImages);
