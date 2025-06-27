@@ -21,7 +21,7 @@ const uploadQuoteImage = async (req, res) => {
       });
     }
 
-    const imageUrl = `/uploads/quotes/${req.file.filename}`;
+    const imageUrl = `/uploads/${req.file.filename}`;
 
     const newImage = await QuoteImage.create({
       imageUrl,
