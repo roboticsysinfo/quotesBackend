@@ -2,7 +2,7 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// 🔐 Generate token
+// 🔐 Token Generator
 const generateToken = (user) => {
   return jwt.sign(
     { _id: user._id, userRole: user.userRole },
@@ -11,30 +11,47 @@ const generateToken = (user) => {
   );
 };
 
-// ✅ Get all users (admin)
+// ✅ Get All Users (Admin)
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find().select('-password');
-    res.json({ success: true, data: users });
+    return res.status(200).json({
+      success: true,
+      message: 'Users fetched successfully',
+      data: users,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server Error' });
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch users',
+    });
   }
 };
 
-// ✅ Get user by ID
+// ✅ Get User by ID
 exports.getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
     }
-    res.json({ success: true, data: user });
+    return res.status(200).json({
+      success: true,
+      message: 'User fetched successfully',
+      data: user,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server Error' });
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch user',
+    });
   }
 };
 
-// ✅ Update any user (admin)
+// ✅ Update User by Admin
 exports.updateUserByAdmin = async (req, res) => {
   try {
     const { name, email, phoneNumber, userRole, userImage } = req.body;
@@ -42,46 +59,66 @@ exports.updateUserByAdmin = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       {
-        name,
-        email,
-        phoneNumber,
-        userRole,
+        ...(name && { name }),
+        ...(email && { email }),
+        ...(phoneNumber && { phoneNumber }),
+        ...(userRole && { userRole }),
         ...(userImage && { userImage }),
       },
       { new: true }
     ).select('-password');
 
     if (!updatedUser) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
     }
 
-    res.json({ success: true, message: 'User updated successfully', data: updatedUser });
+    return res.status(200).json({
+      success: true,
+      message: 'User updated successfully',
+      data: updatedUser,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to update user' });
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update user',
+    });
   }
 };
 
-// ✅ Delete user
+// ✅ Delete User
 exports.deleteUser = async (req, res) => {
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
+
     if (!deletedUser) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
     }
 
-    res.json({ success: true, message: 'User deleted successfully' });
+    return res.status(200).json({
+      success: true,
+      message: 'User deleted successfully',
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to delete user' });
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete user',
+    });
   }
 };
 
-// ✅ Update own profile
+// ✅ Update Own Profile
 exports.updateOwnProfile = async (req, res) => {
   try {
     const userId = req.user._id;
     const { name, email, phoneNumber } = req.body;
 
-    let updateData = {
+    const updateData = {
       ...(name && { name }),
       ...(email && { email }),
       ...(phoneNumber && { phoneNumber }),
@@ -91,24 +128,27 @@ exports.updateOwnProfile = async (req, res) => {
       updateData.userImage = `/uploads/${req.file.filename}`;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      updateData,
-      { new: true }
-    ).select('-password');
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+    }).select('-password');
 
     if (!updatedUser) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
     }
 
-    res.json({
+    return res.status(200).json({
       success: true,
       message: 'Profile updated successfully',
       data: updatedUser,
     });
-
   } catch (error) {
     console.error('Update Profile Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to update profile' });
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update profile',
+    });
   }
 };
