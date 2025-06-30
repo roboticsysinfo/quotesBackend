@@ -21,7 +21,7 @@ const uploadQuoteImage = async (req, res) => {
       });
     }
 
-    const image = `/uploads/${req.file.filename}`;
+    const image = `/uploads/quotes/${req.file.filename}`;
 
     const newImage = await QuoteImage.create({
       image,
@@ -92,8 +92,36 @@ const deleteQuoteImage = async (req, res) => {
   }
 };
 
+
+// 📄 Get Quote Images by Category ID
+const getQuoteImagesByCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+
+    const images = await QuoteImage.find({ categoryId })
+      .populate('langId', 'languageName')
+      .populate('categoryId', 'name')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: 'Quote images by category fetched successfully',
+      data: images
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch quote images by category',
+      error: err.message
+    });
+  }
+};
+
+
+
 module.exports = {
   uploadQuoteImage,
   getQuoteImages,
-  deleteQuoteImage
+  deleteQuoteImage,
+  getQuoteImagesByCategory
 };

@@ -6,7 +6,8 @@ const path = require('path');
 const {
   uploadQuoteImage,
   getQuoteImages,
-  deleteQuoteImage
+  deleteQuoteImage,
+  getQuoteImagesByCategory
 } = require('../controllers/quoteImageControler');
 
 // Multer setup
@@ -25,5 +26,8 @@ router.get('/get-quote-images', getQuoteImages);
 
 // DELETE /api/quote-images/:id
 router.delete('/delete/quote-image/:id', deleteQuoteImage);
+
+// ✅ New Route
+router.get('/get-quotes-by-category/:categoryId', getQuoteImagesByCategory);
 
 module.exports = router;

@@ -4,14 +4,14 @@ const Quote = require('../models/quoteModel');
 // Create Quote
 const createQuote = async (req, res) => {
   try {
-    const { quote, author, langId, categoryId, image = "" } = req.body;
+
+    const { quote, author, langId, categoryId } = req.body;
 
     const newQuote = await Quote.create({
       quote,
       author,
       langId,
       categoryId,
-      image
     });
 
     res.status(201).json({
@@ -19,18 +19,23 @@ const createQuote = async (req, res) => {
       message: 'Quote created successfully',
       data: newQuote
     });
+
   } catch (err) {
+
     res.status(400).json({
       success: false,
       message: 'Failed to create quote',
       error: err.message
     });
+
   }
 };
 
 // Update Quote
 const updateQuote = async (req, res) => {
+
   try {
+
     const { quote, author, langId, categoryId, image } = req.body;
     const updatedFields = { quote, author, langId, categoryId };
 
@@ -51,12 +56,15 @@ const updateQuote = async (req, res) => {
       message: 'Quote updated successfully',
       data: updatedQuote
     });
+
   } catch (err) {
+
     res.status(400).json({
       success: false,
       message: 'Failed to update quote',
       error: err.message
     });
+    
   }
 };
 
@@ -153,8 +161,10 @@ const getQuotesByCategory = async (req, res) => {
 
 // Delete Quote
 const deleteQuote = async (req, res) => {
+
   try {
     const deleted = await Quote.findByIdAndDelete(req.params.id);
+
     if (!deleted) {
       return res.status(404).json({ success: false, message: 'Quote not found' });
     }
@@ -164,6 +174,7 @@ const deleteQuote = async (req, res) => {
       message: 'Quote deleted successfully',
       data: deleted
     });
+
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -171,6 +182,7 @@ const deleteQuote = async (req, res) => {
       error: err.message
     });
   }
+
 };
 
 module.exports = {
