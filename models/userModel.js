@@ -2,29 +2,17 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-  
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
+  name: { type: String, required: true, trim: true },
 
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true
-  },
+  email: { type: String, required: true, unique: true, trim: true },
 
-  password: {
-    type: String,
-    required: true,
-    minlength: 12
-  },
+  password: { type: String, required: true, minlength: 12 },
 
-  phoneNumber: {
-    type: String,
-    trim: true
+  phoneNumber: { type: String, trim: true },
+
+  userImage: {
+    type: String, // Local path or cloud URL
+    default: ''
   },
 
   userRole: {
@@ -37,9 +25,7 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Quote'
   }]
-}, {
-  timestamps: true
-});
+}, { timestamps: true });
 
 // ✅ Hash password before saving
 userSchema.pre('save', async function (next) {
@@ -49,7 +35,7 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// ✅ Method to compare password
+// ✅ Compare passwords
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

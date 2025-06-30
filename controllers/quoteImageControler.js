@@ -1,7 +1,6 @@
 const QuoteImage = require('../models/quoteImageModel');
 const path = require('path');
 
-
 // 📤 Upload Quote Image
 const uploadQuoteImage = async (req, res) => {
   try {

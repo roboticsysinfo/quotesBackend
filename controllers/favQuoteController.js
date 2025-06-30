@@ -4,6 +4,7 @@ const Quote = require('../models/quotesModel');
 // ✅ Add to favourites
 const addFavouriteQuote = async (req, res) => {
   try {
+    
     const { userId, quoteId } = req.body;
 
     const user = await User.findById(userId);
@@ -41,6 +42,7 @@ const addFavouriteQuote = async (req, res) => {
   }
 };
 
+
 // ✅ Remove from favourites
 const removeFavouriteQuote = async (req, res) => {
   try {
@@ -76,6 +78,7 @@ const removeFavouriteQuote = async (req, res) => {
 // ✅ Get all favourite quotes of a user
 const getUserFavourites = async (req, res) => {
   try {
+
     const user = await User.findById(req.params.userId)
       .populate({
         path: 'favouriteQuotes',
@@ -84,6 +87,8 @@ const getUserFavourites = async (req, res) => {
           { path: 'categoryId', select: 'name' }
         ]
       });
+
+    console.log("user", user);
 
     if (!user) {
       return res.status(404).json({
