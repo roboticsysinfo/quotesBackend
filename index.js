@@ -30,7 +30,7 @@ connectDB();
 app.use('/api/auth', authRoutes);
 app.use('/api', languageRoutes);
 app.use('/api', quoteCategoryRoutes);
-app.use('/api/', favQuoteRoutes);
+app.use('/api', favQuoteRoutes);
 app.use('/api', quoteImageRoutes);
 
 // ========= Routes end=============
