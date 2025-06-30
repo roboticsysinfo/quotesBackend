@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema({
     default: 'user'
   },
 
+  fcmToken: {
+    type: String,
+  },
+
   favouriteQuotes: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Quote'
