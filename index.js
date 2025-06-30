@@ -9,6 +9,7 @@ const quoteCategoryRoutes = require("./routes/quoteCategoryRoutes");
 const favQuoteRoutes = require("./routes/favQuoteRoutes");
 const authRoutes = require("./routes/authRoutes");
 const quoteImageRoutes = require('./routes/quoteImageRoutes');
+const statusRoutes = require('./routes/statusRoutes')
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use('/api', languageRoutes);
 app.use('/api', quoteCategoryRoutes);
 app.use('/api', favQuoteRoutes);
 app.use('/api', quoteImageRoutes);
+app.use('/api', statusRoutes)
 
 // ========= Routes end=============
 
