@@ -25,10 +25,6 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
 
-  favouriteQuotes: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Quote'
-  }]
 }, { timestamps: true });
 
 // ✅ Hash password before saving
