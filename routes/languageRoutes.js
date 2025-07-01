@@ -8,15 +8,16 @@ const {
   updateLanguage,
   deleteLanguage
 } = require('../controllers/languageController');
+const { adminOnly } = require('../middleware/authMiddleware');
 
 router.get('/languages', getLanguages);
 
 router.get('/language/:id', getLanguageById);
 
-router.post('/create-language', createLanguage);
+router.post('/create-language', adminOnly, createLanguage);
 
-router.put('/update/language/:id', updateLanguage);
+router.put('/update/language/:id', adminOnly, updateLanguage);
 
-router.delete('/delete/language/:id', deleteLanguage);
+router.delete('/delete/language/:id', adminOnly, deleteLanguage);
 
 module.exports = router;

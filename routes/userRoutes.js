@@ -8,7 +8,7 @@ const {
   updateOwnProfile,
   uploadUserImage,
 } = require('../controllers/userController');
-const { admin } = require('../middleware/authMiddleware');
+const { admin, protect, adminOnly } = require('../middleware/authMiddleware');
 const multer = require('multer');
 const path = require('path');
 
@@ -22,13 +22,13 @@ const upload = multer({ storage });
 
 // ✅ Routes
 
-router.get('/all-users',  getAllUsers);
-router.get('/user/by-userid/:id', getUserById);
+router.get('/all-users', getAllUsers);
+router.get('/user/by-userid/:id', protect, getUserById);
 
-router.put('/admin/update-my-admin/:id',  updateUserByAdmin);
-router.delete('/delete/user/:id',  deleteUser);
+router.put('/admin/update-my-admin/:id', adminOnly, updateUserByAdmin);
+router.delete('/delete/user/:id', adminOnly, deleteUser);
 
-router.put('/update/user/profile', upload.single('userImage'), updateOwnProfile);
+router.put('/update/user/profile', upload.single('userImage'), protect, updateOwnProfile);
 
 
 module.exports = router;

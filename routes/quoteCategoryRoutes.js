@@ -7,6 +7,7 @@ const {
   updateCategory,
   deleteCategory
 } = require('../controllers/quoteCategoryController');
+const { adminOnly } = require('../middleware/authMiddleware');
 
 // GET all
 router.get('/quote-categories', getAllCategories);
@@ -15,12 +16,12 @@ router.get('/quote-categories', getAllCategories);
 router.get('/category/:id', getCategoryById);
 
 // CREATE
-router.post('/create-category', createCategory);
+router.post('/create-category', adminOnly, createCategory);
 
 // UPDATE
-router.put('/update/category/:id', updateCategory);
+router.put('/update/category/:id', adminOnly, updateCategory);
 
 // DELETE
-router.delete('/delete/category/:id', deleteCategory);
+router.delete('/delete/category/:id', adminOnly, deleteCategory);
 
 module.exports = router;

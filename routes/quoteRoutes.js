@@ -11,12 +11,13 @@ const {
   getQuotesByCategory,
   deleteQuote
 } = require('../controllers/quoteController');
+const { adminOnly } = require('../middleware/authMiddleware');
 
 // Create quote
-router.post('/create-quote', createQuote);
+router.post('/create-quote', adminOnly, createQuote);
 
 // Update quote
-router.put('/update/quote/:id', updateQuote);
+router.put('/update/quote/:id', adminOnly, updateQuote);
 
 // Get all quotes
 router.get('/quotes', getQuotes);
@@ -31,6 +32,6 @@ router.get('/quote/by-language/:langId', getQuotesByLanguage);
 router.get('/quote/by-quote-category/:categoryId', getQuotesByCategory);
 
 // Delete quote
-router.delete('/delete/quote/:id', deleteQuote);
+router.delete('/delete/quote/:id', adminOnly, deleteQuote);
 
 module.exports = router;
