@@ -100,6 +100,7 @@ const loginByEmail = async (req, res) => {
   }
 };
 
+
 // 📲 SEND MOCK OTP (Just simulate)
 const sendOTP = async (req, res) => {
   const { phoneNumber } = req.body;
