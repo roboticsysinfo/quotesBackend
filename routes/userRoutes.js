@@ -22,9 +22,11 @@ const upload = multer({ storage });
 // ✅ Routes
 
 router.get('/all-users', getAllUsers);
+
 router.get('/user/by-userid/:id', protect, getUserById);
 
 router.put('/admin/update-my-admin/:id', protect, adminOnly, updateUserByAdmin);
+
 router.delete('/delete/user/:id', protect, adminOnly, deleteUser);
 
 router.put('/update/user/profile', upload.single('userImage'), protect, updateOwnProfile);
