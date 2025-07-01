@@ -8,7 +8,7 @@ const favouriteQuoteSchema = new mongoose.Schema({
   },
   quoteId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Quote',
+    ref: 'QuoteImage',
     required: true
   }
 }, { timestamps: true });
