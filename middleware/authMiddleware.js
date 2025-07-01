@@ -5,8 +5,6 @@ const User = require('../models/userModel');
 const protect = async (req, res, next) => {
   let token;
 
-  console.log("token ", token);
-  
   // Check header: Bearer <token>
   if (
     req.headers.authorization &&
@@ -15,6 +13,8 @@ const protect = async (req, res, next) => {
     try {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      console.log("token ", token);
 
       const user = await User.findById(decoded._id).select('-password');
       if (!user) {
@@ -35,8 +35,6 @@ const protect = async (req, res, next) => {
 // 🔒 Role check middleware (Admin only)
 const adminOnly = (req, res, next) => {
 
-  console.log("ree user", req.user); // output null aa rha hai
-  
   if (req.user && req.user.userRole === 'admin') {
     next();
   } else {

@@ -9,7 +9,7 @@ const {
   deleteQuoteImage,
   getQuoteImagesByCategory
 } = require('../controllers/quoteImageControler');
-const { adminOnly } = require('../middleware/authMiddleware');
+const { adminOnly, protect } = require('../middleware/authMiddleware');
 
 // Multer setup
 const storage = multer.diskStorage({
@@ -20,13 +20,13 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // POST /api/quote-images/upload
-router.post('/upload/quote-image', upload.single('image'), adminOnly, uploadQuoteImage);
+router.post('/upload/quote-image', upload.single('image'), protect, adminOnly, uploadQuoteImage);
 
 // GET /api/quote-images
 router.get('/get-quote-images', getQuoteImages);
 
 // DELETE /api/quote-images/:id
-router.delete('/delete/quote-image/:id', adminOnly, deleteQuoteImage);
+router.delete('/delete/quote-image/:id', protect, adminOnly, deleteQuoteImage);
 
 // ✅ New Route
 router.get('/get-quotes-by-category/:categoryId', getQuoteImagesByCategory);

@@ -14,10 +14,10 @@ const {
 const { adminOnly } = require('../middleware/authMiddleware');
 
 // Create quote
-router.post('/create-quote', adminOnly, createQuote);
+router.post('/create-quote', protect, adminOnly, createQuote);
 
 // Update quote
-router.put('/update/quote/:id', adminOnly, updateQuote);
+router.put('/update/quote/:id', protect, adminOnly, updateQuote);
 
 // Get all quotes
 router.get('/quotes', getQuotes);
@@ -32,6 +32,6 @@ router.get('/quote/by-language/:langId', getQuotesByLanguage);
 router.get('/quote/by-quote-category/:categoryId', getQuotesByCategory);
 
 // Delete quote
-router.delete('/delete/quote/:id', adminOnly, deleteQuote);
+router.delete('/delete/quote/:id', protect, adminOnly, deleteQuote);
 
 module.exports = router;
