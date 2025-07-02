@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
   phoneNumber: { type: String, trim: true },
 
   userImage: {
-    type: String, // Local path or cloud URL
+    type: String,
     default: ''
   },
 
@@ -25,15 +25,48 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
 
+  referralCode: {
+    type: String,
+    unique: true
+  },
+
+  referredBy: { type: String }, // Referral Code of inviter
+
+  points: { type: Number, default: 0 }
+
 }, { timestamps: true });
 
-// ✅ Hash password before saving
+
+// ✅ Generate unique 8-digit referral code starting with "QV"
+const generateReferralCode = async () => {
+  const code = `QV${Math.floor(100000 + Math.random() * 900000)}`; // QV + 6-digit number e.g., QV123456
+
+  // Check for uniqueness
+  const existingUser = await mongoose.models.User.findOne({ referralCode: code });
+  if (existingUser) {
+    // If already exists (very rare), try again recursively
+    return await generateReferralCode();
+  }
+
+  return code;
+};
+
+
+// ✅ Hash password & generate referral code before saving
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  if (this.isModified('password')) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  }
+
+  // Only generate referralCode if not already set
+  if (!this.referralCode) {
+    this.referralCode = await generateReferralCode();
+  }
+
   next();
 });
+
 
 // ✅ Compare passwords
 userSchema.methods.matchPassword = async function (enteredPassword) {

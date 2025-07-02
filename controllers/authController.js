@@ -2,10 +2,73 @@ const User = require('../models/userModel');
 const generateToken = require('../utils/generateToken');
 
 
-// 🟢 SIGNUP with phoneNumber check per userRole
+// 🟢 SIGNUP with check per userRole
+// const signupUser = async (req, res) => {
+//   try {
+//     const { name, email, password, phoneNumber, userRole } = req.body;
+
+//     // Check if email already registered
+//     const existingEmail = await User.findOne({ email });
+//     if (existingEmail) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Email already registered',
+//         data: null
+//       });
+//     }
+
+//     // ✅ Check for phone number duplication based on userRole
+//     if (phoneNumber) {
+//       const existingPhone = await User.findOne({ phoneNumber, userRole: userRole || 'user' });
+//       if (existingPhone) {
+//         return res.status(400).json({
+//           success: false,
+//           message: `Phone number already registered for ${userRole || 'user'}`,
+//           data: null
+//         });
+//       }
+//     }
+
+//     // Create user
+//     const user = await User.create({
+//       name,
+//       email,
+//       password,
+//       phoneNumber,
+//       userRole: userRole || 'user'
+//     });
+
+//     const token = generateToken(user);
+
+//     res.status(201).json({
+//       success: true,
+//       message: 'Signup successful',
+//       token,
+//       data: {
+//         _id: user._id,
+//         name: user.name,
+//         email: user.email,
+//         phoneNumber: user.phoneNumber,
+//         userRole: user.userRole
+//       }
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       success: false,
+//       message: 'Signup failed',
+//       error: err.message
+//     });
+//   }
+// };
+
+
+const User = require('../models/userModel');
+const generateToken = require('../utils/generateToken');
+
+// 🟢 SIGNUP with referral system
 const signupUser = async (req, res) => {
   try {
-    const { name, email, password, phoneNumber, userRole } = req.body;
+    const { name, email, password, phoneNumber, userRole, referredBy } = req.body;
 
     // Check if email already registered
     const existingEmail = await User.findOne({ email });
@@ -29,14 +92,24 @@ const signupUser = async (req, res) => {
       }
     }
 
-    // Create user
+    // ✅ Create user with referredBy if passed
     const user = await User.create({
       name,
       email,
       password,
       phoneNumber,
-      userRole: userRole || 'user'
+      userRole: userRole || 'user',
+      referredBy: referredBy || null
     });
+
+    // 🎁 If referral code is valid, reward inviter
+    if (referredBy) {
+      const inviter = await User.findOne({ referralCode: referredBy });
+      if (inviter) {
+        inviter.points += 10; // Give 10 points to inviter
+        await inviter.save();
+      }
+    }
 
     const token = generateToken(user);
 
@@ -49,9 +122,13 @@ const signupUser = async (req, res) => {
         name: user.name,
         email: user.email,
         phoneNumber: user.phoneNumber,
-        userRole: user.userRole
+        userRole: user.userRole,
+        referralCode: user.referralCode,
+        referredBy: user.referredBy,
+        points: user.points
       }
     });
+
   } catch (err) {
     res.status(500).json({
       success: false,
