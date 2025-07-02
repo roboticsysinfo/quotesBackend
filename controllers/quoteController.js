@@ -1,7 +1,51 @@
 const Quotes = require('../models/quotesModel');
 const imagekit = require('../utils/imagekit');
+const User = require('../models/userModel'); // Import user model
+const sendNotification = require('../utils/fcm'); // Import notification util
+
 
 // 📤 Upload Quote (Already Done)
+// const uploadQuoteMedia = async (req, res) => {
+//   try {
+//     const { uploadedBy = 'admin', langId, categoryId, type } = req.body;
+
+//     if (!req.file) {
+//       return res.status(400).json({ success: false, message: 'File is required' });
+//     }
+
+//     if (!['image', 'video'].includes(type)) {
+//       return res.status(400).json({ success: false, message: 'Invalid media type' });
+//     }
+
+//     const fileBuffer = req.file.buffer;
+//     const fileName = `quote-${Date.now()}-${req.file.originalname}`;
+
+//     const uploaded = await imagekit.upload({
+//       file: fileBuffer,
+//       fileName,
+//       folder: '/quotes',
+//     });
+
+//     const newMedia = await Quotes.create({
+//       type,
+//       url: uploaded.url,
+//       uploadedBy,
+//       langId,
+//       categoryId
+//     });
+
+//     res.status(201).json({
+//       success: true,
+//       message: `${type} uploaded successfully`,
+//       data: newMedia
+//     });
+
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: 'Upload failed', error: err.message });
+//   }
+// };
+
+
 const uploadQuoteMedia = async (req, res) => {
   try {
     const { uploadedBy = 'admin', langId, categoryId, type } = req.body;
@@ -31,6 +75,20 @@ const uploadQuoteMedia = async (req, res) => {
       categoryId
     });
 
+    // ✅ 🔔 Notification logic added here
+    const users = await User.find({ fcmToken: { $exists: true, $ne: null } });
+
+    const title = `नया ${type === 'image' ? 'चित्र' : 'वीडियो'} कोट`;
+    const body = `आपके लिए एक नया ${type === 'image' ? 'चित्र' : 'वीडियो'} कोट जोड़ा गया है`;
+
+    for (let user of users) {
+      try {
+        await sendNotification(user.fcmToken, title, body);
+      } catch (err) {
+        console.error(`Failed to notify user ${user._id}`, err.message);
+      }
+    }
+
     res.status(201).json({
       success: true,
       message: `${type} uploaded successfully`,
@@ -38,9 +96,13 @@ const uploadQuoteMedia = async (req, res) => {
     });
 
   } catch (err) {
+    console.error("Upload Error:", err);
     res.status(500).json({ success: false, message: 'Upload failed', error: err.message });
   }
 };
+
+
+
 
 // ❌ Delete Quote
 const deleteQuote = async (req, res) => {
