@@ -117,15 +117,17 @@ exports.deleteUser = async (req, res) => {
 };
 
 // ✅ Update Own Profile
+// ✅ Update Own Profile (with FCM Token)
 exports.updateOwnProfile = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { name, email, phoneNumber } = req.body;
+    const { name, email, phoneNumber, fcmToken } = req.body; // ⬅️ fcmToken लिया
 
     const updateData = {
       ...(name && { name }),
       ...(email && { email }),
       ...(phoneNumber && { phoneNumber }),
+      ...(fcmToken && { fcmToken }), // ⬅️ फील्ड में जोड़ा
     };
 
     if (req.file) {
@@ -156,3 +158,4 @@ exports.updateOwnProfile = async (req, res) => {
     });
   }
 };
+
