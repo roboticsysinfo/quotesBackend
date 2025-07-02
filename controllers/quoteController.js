@@ -1,99 +1,101 @@
-// controllers/quoteController.js
-const Quote = require('../models/quoteModel');
+const Quotes = require('../models/quotesModel');
+const imagekit = require('../utils/imagekit');
 
-// Create Quote
-const createQuote = async (req, res) => {
+// 📤 Upload Quote (Already Done)
+const uploadQuoteMedia = async (req, res) => {
   try {
+    const { uploadedBy = 'admin', langId, categoryId, type } = req.body;
 
-    const { quote, author, langId, categoryId } = req.body;
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'File is required' });
+    }
 
-    const newQuote = await Quote.create({
-      quote,
-      author,
+    if (!['image', 'video'].includes(type)) {
+      return res.status(400).json({ success: false, message: 'Invalid media type' });
+    }
+
+    const fileBuffer = req.file.buffer;
+    const fileName = `quote-${Date.now()}-${req.file.originalname}`;
+
+    const uploaded = await imagekit.upload({
+      file: fileBuffer,
+      fileName,
+      folder: '/quotes',
+    });
+
+    const newMedia = await Quotes.create({
+      type,
+      url: uploaded.url,
+      uploadedBy,
       langId,
-      categoryId,
+      categoryId
     });
 
     res.status(201).json({
       success: true,
-      message: 'Quote created successfully',
-      data: newQuote
+      message: `${type} uploaded successfully`,
+      data: newMedia
     });
 
   } catch (err) {
-
-    res.status(400).json({
-      success: false,
-      message: 'Failed to create quote',
-      error: err.message
-    });
-
+    res.status(500).json({ success: false, message: 'Upload failed', error: err.message });
   }
 };
 
-// Update Quote
-const updateQuote = async (req, res) => {
-
+// ❌ Delete Quote
+const deleteQuote = async (req, res) => {
   try {
+    const deleted = await Quotes.findByIdAndDelete(req.params.id);
 
-    const { quote, author, langId, categoryId, image } = req.body;
-    const updatedFields = { quote, author, langId, categoryId };
-
-    if (image !== undefined) {
-      updatedFields.image = image;
-    }
-
-    const updatedQuote = await Quote.findByIdAndUpdate(req.params.id, updatedFields, {
-      new: true
-    });
-
-    if (!updatedQuote) {
+    if (!deleted) {
       return res.status(404).json({ success: false, message: 'Quote not found' });
     }
 
-    res.status(200).json({
-      success: true,
-      message: 'Quote updated successfully',
-      data: updatedQuote
-    });
-
+    res.status(200).json({ success: true, message: 'Quote deleted successfully', data: deleted });
   } catch (err) {
-
-    res.status(400).json({
-      success: false,
-      message: 'Failed to update quote',
-      error: err.message
-    });
-    
+    res.status(500).json({ success: false, message: 'Delete failed', error: err.message });
   }
 };
 
-// Get all quotes
-const getQuotes = async (req, res) => {
+// ✏️ Update/Edit Quote
+const updateQuote = async (req, res) => {
   try {
-    const quotes = await Quote.find()
+    const { langId, categoryId } = req.body;
+
+    const updated = await Quotes.findByIdAndUpdate(
+      req.params.id,
+      { langId, categoryId },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'Quote not found' });
+    }
+
+    res.status(200).json({ success: true, message: 'Quote updated successfully', data: updated });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Update failed', error: err.message });
+  }
+};
+
+// 📄 Get All Quotes
+const getAllQuotes = async (req, res) => {
+  try {
+    const quotes = await Quotes.find()
       .populate('langId', 'languageName')
       .populate('categoryId', 'name')
       .sort({ createdAt: -1 });
 
-    res.status(200).json({
-      success: true,
-      message: 'Quotes fetched successfully',
-      data: quotes
-    });
+    res.status(200).json({ success: true, data: quotes });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch quotes',
-      error: err.message
-    });
+    res.status(500).json({ success: false, message: 'Failed to fetch quotes', error: err.message });
   }
 };
 
-// Get quote by ID
+// 📄 Get Quote by ID
 const getQuoteById = async (req, res) => {
   try {
-    const quote = await Quote.findById(req.params.id)
+    const quote = await Quotes.findById(req.params.id)
       .populate('langId', 'languageName')
       .populate('categoryId', 'name');
 
@@ -101,96 +103,46 @@ const getQuoteById = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Quote not found' });
     }
 
-    res.status(200).json({
-      success: true,
-      message: 'Quote fetched successfully',
-      data: quote
-    });
+    res.status(200).json({ success: true, data: quote });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch quote',
-      error: err.message
-    });
+    res.status(500).json({ success: false, message: 'Failed to fetch quote', error: err.message });
   }
 };
 
-// Get quotes by langId
-const getQuotesByLanguage = async (req, res) => {
-  try {
-    const quotes = await Quote.find({ langId: req.params.langId })
-      .populate('langId', 'languageName')
-      .populate('categoryId', 'name')
-      .sort({ createdAt: -1 });
-
-    res.status(200).json({
-      success: true,
-      message: 'Quotes by language fetched successfully',
-      data: quotes
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch quotes by language',
-      error: err.message
-    });
-  }
-};
-
-// Get quotes by categoryId
+// 📄 Get Quotes by Category ID
 const getQuotesByCategory = async (req, res) => {
   try {
-    const quotes = await Quote.find({ categoryId: req.params.categoryId })
+    const quotes = await Quotes.find({ categoryId: req.params.categoryId })
       .populate('langId', 'languageName')
       .populate('categoryId', 'name')
       .sort({ createdAt: -1 });
 
-    res.status(200).json({
-      success: true,
-      message: 'Quotes by category fetched successfully',
-      data: quotes
-    });
+    res.status(200).json({ success: true, data: quotes });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch quotes by category',
-      error: err.message
-    });
+    res.status(500).json({ success: false, message: 'Failed to fetch', error: err.message });
   }
 };
 
-// Delete Quote
-const deleteQuote = async (req, res) => {
-
+// 📄 Get Quotes by Language ID
+const getQuotesByLanguage = async (req, res) => {
   try {
-    const deleted = await Quote.findByIdAndDelete(req.params.id);
+    const quotes = await Quotes.find({ langId: req.params.langId })
+      .populate('langId', 'languageName')
+      .populate('categoryId', 'name')
+      .sort({ createdAt: -1 });
 
-    if (!deleted) {
-      return res.status(404).json({ success: false, message: 'Quote not found' });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Quote deleted successfully',
-      data: deleted
-    });
-
+    res.status(200).json({ success: true, data: quotes });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to delete quote',
-      error: err.message
-    });
+    res.status(500).json({ success: false, message: 'Failed to fetch', error: err.message });
   }
-
 };
 
 module.exports = {
-  createQuote,
+  uploadQuoteMedia,
+  deleteQuote,
   updateQuote,
-  getQuotes,
+  getAllQuotes,
   getQuoteById,
-  getQuotesByLanguage,
   getQuotesByCategory,
-  deleteQuote
+  getQuotesByLanguage
 };

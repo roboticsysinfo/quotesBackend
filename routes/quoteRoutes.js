@@ -1,37 +1,33 @@
-// routes/quoteRoutes.js
 const express = require('express');
 const router = express.Router();
-
+const upload = require('../middleware/upload'); // multer with memory storage
 const {
-  createQuote,
+  uploadQuoteMedia,
+  deleteQuote,
   updateQuote,
-  getQuotes,
+  getAllQuotes,
   getQuoteById,
-  getQuotesByLanguage,
   getQuotesByCategory,
-  deleteQuote
+  getQuotesByLanguage
 } = require('../controllers/quoteController');
-const { adminOnly } = require('../middleware/authMiddleware');
+const { protect, adminOnly } = require("../middleware/authMiddleware");
 
-// Create quote
-router.post('/create-quote', protect, adminOnly, createQuote);
+// 🟢 Upload (Image/Video)
+router.post('/upload-quote', upload.single('media'), uploadQuoteMedia);
 
-// Update quote
-router.put('/update/quote/:id', protect, adminOnly, updateQuote);
+// 🟡 Get
+router.get('/image/video/quotes', getAllQuotes);
 
-// Get all quotes
-router.get('/quotes', getQuotes);
+router.get('/single-quote/:id', getQuoteById);
 
-// Get single quote
-router.get('/single/quote/:id', getQuoteById);
+router.get('/quotes/by-category/:categoryId', getQuotesByCategory);
 
-// Get by language
-router.get('/quote/by-language/:langId', getQuotesByLanguage);
+router.get('/quotes/by-language/:langId', getQuotesByLanguage);
 
-// Get by category
-router.get('/quote/by-quote-category/:categoryId', getQuotesByCategory);
+// 🔴 Delete
+router.delete('/delete-quote/:id', protect, adminOnly, deleteQuote);
 
-// Delete quote
-router.delete('/delete/quote/:id', protect, adminOnly, deleteQuote);
+// 🟠 Update
+router.put('/update-quote/:id', protect, adminOnly, updateQuote);
 
 module.exports = router;

@@ -11,6 +11,8 @@ const authRoutes = require("./routes/authRoutes");
 const quoteImageRoutes = require('./routes/quoteImageRoutes');
 const statusRoutes = require('./routes/statusRoutes')
 const userRoutes = require('./routes/userRoutes')
+const quoteRoutes = require('./routes/quoteRoutes')
+
 
 const app = express();
 
@@ -36,7 +38,7 @@ app.use('/api', favQuoteRoutes);
 app.use('/api', quoteImageRoutes);
 app.use('/api', statusRoutes)
 app.use('/api', userRoutes)
-
+app.use('/api', quoteRoutes)
 
 // ========= Routes end=============
 

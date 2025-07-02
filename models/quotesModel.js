@@ -1,17 +1,14 @@
-// models/quoteModel.js
+// models/quotesModel.js
 const mongoose = require('mongoose');
 
-const quoteSchema = new mongoose.Schema({
-  quote: {
+const quotesSchema = new mongoose.Schema({
+  type: {
     type: String,
-    required: true,
-    trim: true
+    enum: ['image', 'video'],
+    required: true
   },
-  author: {
-    type: String,
-    default: "Unknown",
-    trim: true
-  },
+  url: { type: String, required: true }, // ImageKit URL
+  uploadedBy: { type: String, default: 'admin' },
   langId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Language',
@@ -22,8 +19,7 @@ const quoteSchema = new mongoose.Schema({
     ref: 'QuoteCategory',
     required: true
   },
-}, {
-  timestamps: true
+  createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Quote', quoteSchema);
+module.exports = mongoose.model('Quotes', quotesSchema);

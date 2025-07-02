@@ -1,6 +1,7 @@
 const QuoteImage = require('../models/quoteImageModel');
 const path = require('path');
 
+
 // 📤 Upload Quote Image
 const uploadQuoteImage = async (req, res) => {
   try {
@@ -64,6 +65,7 @@ const getQuoteImages = async (req, res) => {
     });
   }
 };
+
 
 // ❌ Delete Quote Image
 const deleteQuoteImage = async (req, res) => {

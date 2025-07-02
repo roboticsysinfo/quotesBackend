@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+
 // 🔐 Token Generator
 const generateToken = (user) => {
   return jwt.sign(
@@ -10,6 +11,7 @@ const generateToken = (user) => {
     { expiresIn: '7d' }
   );
 };
+
 
 // ✅ Get All Users (Admin)
 exports.getAllUsers = async (req, res) => {
@@ -27,6 +29,7 @@ exports.getAllUsers = async (req, res) => {
     });
   }
 };
+
 
 // ✅ Get User by ID
 exports.getUserById = async (req, res) => {
@@ -50,6 +53,7 @@ exports.getUserById = async (req, res) => {
     });
   }
 };
+
 
 // ✅ Update User by Admin
 exports.updateUserByAdmin = async (req, res) => {
