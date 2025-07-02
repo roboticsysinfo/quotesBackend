@@ -64,9 +64,6 @@ const getUserFavourites = async (req, res) => {
   try {
     const userId = req.params.userId;
 
-    console.log(" userId", userId);
-
-
     const favourites = await FavouriteQuote.find({ userId })
       .populate({
         path: 'quoteId',
@@ -75,8 +72,6 @@ const getUserFavourites = async (req, res) => {
           { path: 'categoryId', select: 'name' }
         ]
       });
-
-    console.log(" favourites", favourites);
 
     res.status(200).json({
       success: true,

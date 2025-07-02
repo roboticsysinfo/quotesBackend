@@ -25,8 +25,6 @@ const getLanguageById = async (req, res) => {
     
     const language = await Language.findById(req.params.id);
 
-    console.log("language", language)
-
     if (!language) {
       return res.status(404).json({
         success: false,

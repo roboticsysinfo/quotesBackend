@@ -78,16 +78,19 @@ const uploadQuoteMedia = async (req, res) => {
     // ✅ 🔔 Notification logic added here
     const users = await User.find({ fcmToken: { $exists: true, $ne: null } });
 
-    const title = `नया ${type === 'image' ? 'चित्र' : 'वीडियो'} कोट`;
-    const body = `आपके लिए एक नया ${type === 'image' ? 'चित्र' : 'वीडियो'} कोट जोड़ा गया है`;
+    const title = `New ${type === 'image' ? 'Image' : 'Video'} Quote`;
+    const body = `A new ${type === 'image' ? 'image' : 'video'} quote has been added for you.`;
+
 
     for (let user of users) {
       try {
-        await sendNotification(user.fcmToken, title, body);
+        const imageUrl = type === 'image' ? uploaded.url : null; // ✅ only if it's image
+        await sendNotification(user.fcmToken, title, body, imageUrl);
       } catch (err) {
         console.error(`Failed to notify user ${user._id}`, err.message);
       }
     }
+
 
     res.status(201).json({
       success: true,
