@@ -61,10 +61,6 @@ const generateToken = require('../utils/generateToken');
 //   }
 // };
 
-
-const User = require('../models/userModel');
-const generateToken = require('../utils/generateToken');
-
 // 🟢 SIGNUP with referral system
 const signupUser = async (req, res) => {
   try {
