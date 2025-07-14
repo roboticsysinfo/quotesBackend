@@ -200,11 +200,24 @@ exports.getUserPointHistory = async (req, res) => {
   try {
     const userId = req.params.id;
 
+    // Fetch user to get referralCode and points
+    const user = await User.findById(userId).select('referralCode points');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    // Fetch transaction history
     const history = await PointTransactionHistory.find({ user: userId }).sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
       message: 'User point history fetched successfully',
+      referralCode: user.referralCode,
+      points: user.points,
       data: history,
     });
   } catch (err) {

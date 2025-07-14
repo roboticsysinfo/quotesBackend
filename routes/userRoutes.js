@@ -13,6 +13,7 @@ const { admin, protect, adminOnly } = require('../middleware/authMiddleware');
 const multer = require('multer');
 const path = require('path');
 
+
 // ✅ Multer setup
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
@@ -25,11 +26,15 @@ const upload = multer({ storage });
 
 router.get('/all-users', getAllUsers);
 
+
 router.get('/user/by-userid/:id', protect, getUserById);
+
 
 router.put('/admin/update-my-admin/:id', protect, adminOnly, updateUserByAdmin);
 
+
 router.delete('/delete/user/:id', protect, adminOnly, deleteUser);
+
 
 router.put('/update/user/profile', upload.single('userImage'), protect, updateOwnProfile);
 
@@ -39,5 +44,6 @@ router.get('/get/leaderboard', protect, getLeaderboard);
 
 // GET /api/users/poinst transaction history
 router.get('/user/points-transactions-history/:id', protect, getUserPointHistory);
+
 
 module.exports = router;
