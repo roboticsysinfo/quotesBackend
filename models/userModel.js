@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
 
   userImage: {
     type: String,
-    default: ''
+    default: 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
   },
 
   userRole: {

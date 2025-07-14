@@ -12,7 +12,7 @@ const quoteImageRoutes = require('./routes/quoteImageRoutes');
 const statusRoutes = require('./routes/statusRoutes')
 const userRoutes = require('./routes/userRoutes')
 const quoteRoutes = require('./routes/quoteRoutes')
-
+const redeemProductRoutes = require('./routes/redeemProductRoutes')
 
 const app = express();
 
@@ -39,6 +39,7 @@ app.use('/api', quoteImageRoutes);
 app.use('/api', statusRoutes)
 app.use('/api', userRoutes)
 app.use('/api', quoteRoutes)
+app.use('/api', redeemProductRoutes)
 
 // ========= Routes end=============
 
