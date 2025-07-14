@@ -2,6 +2,7 @@ const RedeemProduct = require('../models/RedeemProduct');
 const RedeemHistory = require('../models/RedeemHistory');
 const User = require('../models/userModel');
 const imagekit = require('../utils/imagekit');
+const PointTransactionsHistory = require('../models/PointTransactionsHistory');
 
 
 // ✅ Add Product
@@ -41,8 +42,6 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-
-// ✅ Get All Products
 // ✅ Get All Products (with pagination and sort by requiredPoints DESC)
 exports.getAllProducts = async (req, res) => {
   try {
@@ -111,8 +110,6 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-
-
 // ✅ Delete Product
 exports.deleteProduct = async (req, res) => {
   try {
@@ -130,6 +127,7 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
+
 
 
 exports.redeemProduct = async (req, res) => {
@@ -152,10 +150,10 @@ exports.redeemProduct = async (req, res) => {
     user.points -= product.requiredPoints;
     await user.save();
 
-    // Generate unique bill number (e.g. BILL20250714001)
+    // Generate unique bill number
     const billNo = `BILL${Date.now()}`;
 
-    // Create redeem history
+    // Save redeem history
     const history = new RedeemHistory({
       user: user._id,
       product: product._id,
@@ -169,8 +167,16 @@ exports.redeemProduct = async (req, res) => {
         priceValue: product.price_value,
       },
     });
-
     await history.save();
+
+    // ✅ Save point transaction history
+    const transaction = new PointTransactionsHistory({
+      user: user._id,
+      deductedPoints: product.requiredPoints,
+      type: 'redeem',
+      description: `You Redeemed "${product.name}" worth ₹${product.price_value}`,
+    });
+    await transaction.save();
 
     res.status(200).json({
       success: true,
@@ -187,6 +193,8 @@ exports.redeemProduct = async (req, res) => {
     res.status(500).json({ message: 'Failed to redeem product' });
   }
 };
+
+
 
 
 exports.getUserRedeemHistory = async (req, res) => {
@@ -206,6 +214,8 @@ exports.getUserRedeemHistory = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
+
+
 
 // All Redeem Product History
 exports.getAllRedeemHistory = async (req, res) => {
@@ -247,7 +257,6 @@ exports.getAllRedeemHistory = async (req, res) => {
 };
 
 
-// 🔹 GET Redeem Product by Bill No
 // 🔹 GET Redeem Product by Bill No
 exports.getRedeemHistoryByBillNo = async (req, res) => {
   try {
