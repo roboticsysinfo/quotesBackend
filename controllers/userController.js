@@ -164,8 +164,11 @@ exports.updateOwnProfile = async (req, res) => {
 
 exports.getLeaderboard = async (req, res) => {
   try {
-    const users = await User.find({}, 'name userImage points referralCode') // only select needed fields
-      .sort({ points: -1 }) // sort by score descending
+    const users = await User.find(
+      { userRole: 'user' }, // ✅ Only include users with userRole 'user'
+      'name userImage points referralCode'
+    )
+      .sort({ points: -1 }) // sort by points descending
       .lean();
 
     const leaderboard = users.map((user, index) => ({
