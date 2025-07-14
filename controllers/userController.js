@@ -159,3 +159,33 @@ exports.updateOwnProfile = async (req, res) => {
   }
 };
 
+
+// user leaderboard   
+
+exports.getLeaderboard = async (req, res) => {
+  try {
+    const users = await User.find({}, 'name userImage points referralCode') // only select needed fields
+      .sort({ points: -1 }) // sort by score descending
+      .lean();
+
+    const leaderboard = users.map((user, index) => ({
+      rank: index + 1,
+      name: user.name,
+      userImage: user.userImage,
+      points: user.points,
+      referralCode: user.referralCode
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: 'Leaderboard fetched successfully',
+      data: leaderboard
+    });
+  } catch (error) {
+    console.error('Leaderboard Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error',
+    });
+  }
+};

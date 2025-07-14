@@ -6,6 +6,7 @@ const {
   updateUserByAdmin,
   deleteUser,
   updateOwnProfile,
+  getLeaderboard,
 } = require('../controllers/userController');
 const { admin, protect, adminOnly } = require('../middleware/authMiddleware');
 const multer = require('multer');
@@ -30,6 +31,10 @@ router.put('/admin/update-my-admin/:id', protect, adminOnly, updateUserByAdmin);
 router.delete('/delete/user/:id', protect, adminOnly, deleteUser);
 
 router.put('/update/user/profile', upload.single('userImage'), protect, updateOwnProfile);
+
+
+// GET /api/users/leaderboard
+router.get('/get/leaderboard', protect, getLeaderboard);
 
 
 module.exports = router;
