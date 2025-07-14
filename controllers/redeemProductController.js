@@ -248,6 +248,7 @@ exports.getAllRedeemHistory = async (req, res) => {
 
 
 // 🔹 GET Redeem Product by Bill No
+// 🔹 GET Redeem Product by Bill No
 exports.getRedeemHistoryByBillNo = async (req, res) => {
   try {
     const { billNo } = req.params;
@@ -261,10 +262,18 @@ exports.getRedeemHistoryByBillNo = async (req, res) => {
       });
     }
 
+    const price = history.snapshot.priceValue || 0;
+    const gst = parseFloat((price * 0.18).toFixed(2)); // 18% GST
+    const totalPrice = parseFloat((price + gst).toFixed(2));
+
     res.status(200).json({
       success: true,
       message: 'Redeem product fetched successfully',
-      data: history,
+      data: {
+        ...history.toObject(),
+        gstAmount: gst,
+        totalPrice,
+      },
     });
   } catch (err) {
     console.error('Error fetching redeem product by billNo:', err);
@@ -274,7 +283,5 @@ exports.getRedeemHistoryByBillNo = async (req, res) => {
     });
   }
 };
-
-
 
 

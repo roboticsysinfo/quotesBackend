@@ -14,7 +14,6 @@ const {
 } = require('../controllers/redeemProductController');
 const { adminOnly, protect } = require('../middleware/authMiddleware');
 const upload = require('../middleware/upload');
-const RedeemProduct = require('../models/RedeemProduct');
 
 
 // Create product (POST)
