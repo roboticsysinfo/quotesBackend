@@ -1,10 +1,14 @@
 const RedeemProduct = require('../models/RedeemProduct');
+const RedeemHistory = require('../models/RedeemHistory');
+const User = require('../models/userModel');
 const imagekit = require('../utils/imagekit');
 
 
 // ✅ Add Product
 exports.createProduct = async (req, res) => {
+
   try {
+
     const { name, description, price_value, requiredPoints } = req.body;
 
     let productImageUrl = '';
@@ -126,3 +130,121 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
+
+
+exports.redeemProduct = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { productId } = req.body;
+
+    const user = await User.findById(userId);
+    const product = await RedeemProduct.findById(productId);
+
+    if (!user || !product) {
+      return res.status(404).json({ message: 'User or Product not found' });
+    }
+
+    if (user.points < product.requiredPoints) {
+      return res.status(400).json({ message: 'Not enough points to redeem this product' });
+    }
+
+    // Deduct points
+    user.points -= product.requiredPoints;
+    await user.save();
+
+    // Generate unique bill number (e.g. BILL20250714001)
+    const billNo = `BILL${Date.now()}`;
+
+    // Create redeem history
+    const history = new RedeemHistory({
+      user: user._id,
+      product: product._id,
+      billNo,
+      snapshot: {
+        userName: user.name,
+        userEmail: user.email,
+        productName: product.name,
+        productImage: product.productImage,
+        pointsUsed: product.requiredPoints,
+        priceValue: product.price_value,
+      },
+    });
+
+    await history.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Product redeemed successfully',
+      data: {
+        billNo: history.billNo,
+        redeemedAt: history.redeemedAt,
+        snapshot: history.snapshot,
+      },
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to redeem product' });
+  }
+};
+
+
+exports.getUserRedeemHistory = async (req, res) => {
+  try {
+
+    const userId = req.params.id; // ✅ Get user ID from route param
+
+    const history = await RedeemHistory.find({ user: userId }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: 'Redeem history fetched',
+      data: history,
+    });
+  } catch (err) {
+    console.error('Get History Error:', err);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+// All Redeem Product History
+exports.getAllRedeemHistory = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, search = '' } = req.query;
+
+    const query = {
+      $or: [
+        { 'snapshot.productName': { $regex: search, $options: 'i' } },
+        { billNo: { $regex: search, $options: 'i' } },
+        { 'snapshot.userName': { $regex: search, $options: 'i' } },
+        { 'snapshot.userEmail': { $regex: search, $options: 'i' } },
+      ],
+    };
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const total = await RedeemHistory.countDocuments(query);
+
+    const history = await RedeemHistory.find(query)
+      .sort({ createdAt: -1 }) // Newest first
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    res.status(200).json({
+      success: true,
+      message: 'All redeem history fetched successfully',
+      data: history,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (err) {
+    console.error('Error fetching all redeem history:', err);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+
+

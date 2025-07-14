@@ -7,9 +7,13 @@ const {
   getAllProducts,
   updateProduct,
   deleteProduct,
+  redeemProduct,
+  getUserRedeemHistory,
+  getAllRedeemHistory,
 } = require('../controllers/redeemProductController');
 const { adminOnly, protect } = require('../middleware/authMiddleware');
 const upload = require('../middleware/upload');
+const RedeemProduct = require('../models/RedeemProduct');
 
 
 // Create product (POST)
@@ -27,5 +31,16 @@ router.put('/update/product/:id', upload.single('productImage'), protect, adminO
 // Delete product (DELETE)
 router.delete('/delete/product/:id', protect, adminOnly, deleteProduct);
 
+
+// POST - Redeem Product
+router.post('/redeem-product', protect, redeemProduct);
+
+
+// Get User Redeem Product History by
+router.get('/user/redeem-product-history/:id', protect, getUserRedeemHistory);
+
+
+// Get All Redeem Product History
+router.get('/all/redeem-product-history', protect, getAllRedeemHistory);
 
 module.exports = router;
