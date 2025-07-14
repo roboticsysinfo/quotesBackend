@@ -173,6 +173,7 @@ exports.getLeaderboard = async (req, res) => {
 
     const leaderboard = users.map((user, index) => ({
       rank: index + 1,
+      id: user._id,
       name: user.name,
       userImage: user.userImage,
       points: user.points,
