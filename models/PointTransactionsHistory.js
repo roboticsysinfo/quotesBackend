@@ -6,7 +6,7 @@ const pointTransactionsHistorySchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
-    points: {
+    deductedPoints: {
         type: Number,
         required: true,
     },

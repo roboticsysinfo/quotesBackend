@@ -7,6 +7,7 @@ const {
   deleteUser,
   updateOwnProfile,
   getLeaderboard,
+  getUserPointHistory,
 } = require('../controllers/userController');
 const { admin, protect, adminOnly } = require('../middleware/authMiddleware');
 const multer = require('multer');
@@ -36,5 +37,7 @@ router.put('/update/user/profile', upload.single('userImage'), protect, updateOw
 // GET /api/users/leaderboard
 router.get('/get/leaderboard', protect, getLeaderboard);
 
+// GET /api/users/poinst transaction history
+router.get('/user/points-transactions-history/:id', protect, getUserPointHistory);
 
 module.exports = router;

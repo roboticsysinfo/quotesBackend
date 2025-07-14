@@ -1,7 +1,7 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
+const PointTransactionHistory = require("../models/PointTransactionsHistory")
 
 // 🔐 Token Generator
 const generateToken = (user) => {
@@ -190,6 +190,28 @@ exports.getLeaderboard = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Server Error',
+    });
+  }
+};
+
+
+// GET User Points Transactions History
+exports.getUserPointHistory = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const history = await PointTransactionHistory.find({ user: userId }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: 'User point history fetched successfully',
+      data: history,
+    });
+  } catch (err) {
+    console.error('Error fetching user point history:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching point history',
     });
   }
 };
