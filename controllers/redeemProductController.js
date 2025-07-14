@@ -247,4 +247,34 @@ exports.getAllRedeemHistory = async (req, res) => {
 };
 
 
+// 🔹 GET Redeem Product by Bill No
+exports.getRedeemHistoryByBillNo = async (req, res) => {
+  try {
+    const { billNo } = req.params;
+
+    const history = await RedeemHistory.findOne({ billNo });
+
+    if (!history) {
+      return res.status(404).json({
+        success: false,
+        message: 'No redeem history found with this bill number',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Redeem product fetched successfully',
+      data: history,
+    });
+  } catch (err) {
+    console.error('Error fetching redeem product by billNo:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error',
+    });
+  }
+};
+
+
+
 

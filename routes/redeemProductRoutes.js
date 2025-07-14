@@ -10,6 +10,7 @@ const {
   redeemProduct,
   getUserRedeemHistory,
   getAllRedeemHistory,
+  getRedeemHistoryByBillNo,
 } = require('../controllers/redeemProductController');
 const { adminOnly, protect } = require('../middleware/authMiddleware');
 const upload = require('../middleware/upload');
@@ -42,5 +43,9 @@ router.get('/user/redeem-product-history/:id', protect, getUserRedeemHistory);
 
 // Get All Redeem Product History
 router.get('/all/redeem-product-history', protect, getAllRedeemHistory);
+
+
+// Get redeem product history for generate invoice by bill no
+router.get('/product/invoice/:billNo', protect, adminOnly, getRedeemHistoryByBillNo);
 
 module.exports = router;
