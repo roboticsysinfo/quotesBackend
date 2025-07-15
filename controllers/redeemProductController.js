@@ -128,11 +128,12 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
+
 exports.redeemProduct = async (req, res) => {
   try {
 
     const userId = req.user._id;
-    const { productId } = req.body;
+    const { productId, phone, address } = req.body;
 
     console.log("userid", userId);
     console.log("productId", productId);
@@ -163,6 +164,8 @@ exports.redeemProduct = async (req, res) => {
       snapshot: {
         userName: user.name,
         userEmail: user.email,
+        userPhone: phone,
+        userAddress: address,
         productName: product.name,
         productImage: product.productImage,
         pointsUsed: product.requiredPoints,

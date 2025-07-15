@@ -24,6 +24,8 @@ const redeemHistorySchema = new mongoose.Schema({
   snapshot: {
     userName: String,
     userEmail: String,
+    userPhone: String,
+    userAddress: String,
     productName: String,
     productImage: String,
     pointsUsed: Number,
