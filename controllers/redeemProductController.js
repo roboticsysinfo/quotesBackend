@@ -128,13 +128,15 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
-
-
 exports.redeemProduct = async (req, res) => {
   try {
+
     const userId = req.user._id;
     const { productId } = req.body;
 
+    console.log("userid", userId);
+    console.log("productId", productId);
+    
     const user = await User.findById(userId);
     const product = await RedeemProduct.findById(productId);
 
