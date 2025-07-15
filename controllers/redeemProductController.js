@@ -135,9 +135,6 @@ exports.redeemProduct = async (req, res) => {
     const userId = req.user._id;
     const { productId, phone, address } = req.body;
 
-    console.log("userid", userId);
-    console.log("productId", productId);
-    
     const user = await User.findById(userId);
     const product = await RedeemProduct.findById(productId);
 
@@ -200,8 +197,6 @@ exports.redeemProduct = async (req, res) => {
 };
 
 
-
-
 exports.getUserRedeemHistory = async (req, res) => {
   try {
 
@@ -219,7 +214,6 @@ exports.getUserRedeemHistory = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
-
 
 
 // All Redeem Product History

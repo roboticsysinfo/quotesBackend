@@ -4,48 +4,6 @@ const User = require('../models/userModel'); // Import user model
 const sendNotification = require('../utils/fcm'); // Import notification util
 
 
-// 📤 Upload Quote (Already Done)
-// const uploadQuoteMedia = async (req, res) => {
-//   try {
-//     const { uploadedBy = 'admin', langId, categoryId, type } = req.body;
-
-//     if (!req.file) {
-//       return res.status(400).json({ success: false, message: 'File is required' });
-//     }
-
-//     if (!['image', 'video'].includes(type)) {
-//       return res.status(400).json({ success: false, message: 'Invalid media type' });
-//     }
-
-//     const fileBuffer = req.file.buffer;
-//     const fileName = `quote-${Date.now()}-${req.file.originalname}`;
-
-//     const uploaded = await imagekit.upload({
-//       file: fileBuffer,
-//       fileName,
-//       folder: '/quotes',
-//     });
-
-//     const newMedia = await Quotes.create({
-//       type,
-//       url: uploaded.url,
-//       uploadedBy,
-//       langId,
-//       categoryId
-//     });
-
-//     res.status(201).json({
-//       success: true,
-//       message: `${type} uploaded successfully`,
-//       data: newMedia
-//     });
-
-//   } catch (err) {
-//     res.status(500).json({ success: false, message: 'Upload failed', error: err.message });
-//   }
-// };
-
-
 const uploadQuoteMedia = async (req, res) => {
   try {
     const { uploadedBy = 'admin', langId, categoryId, type } = req.body;
@@ -103,8 +61,6 @@ const uploadQuoteMedia = async (req, res) => {
     res.status(500).json({ success: false, message: 'Upload failed', error: err.message });
   }
 };
-
-
 
 
 // ❌ Delete Quote
@@ -202,6 +158,85 @@ const getQuotesByLanguage = async (req, res) => {
   }
 };
 
+
+// POST -- Quote Upload by User and Create by User
+const uploadQuoteMediaByUser = async (req, res) => {
+  try {
+    const { langId, categoryId, type } = req.body;
+    const uploadedBy = req.user?._id || 'admin'; // ✅ support user uploads
+    const user = await User.findById(uploadedBy);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'File is required' });
+    }
+
+    if (!['image', 'video'].includes(type)) {
+      return res.status(400).json({ success: false, message: 'Invalid media type' });
+    }
+
+    const fileBuffer = req.file.buffer;
+    const fileName = `quote-${Date.now()}-${req.file.originalname}`;
+
+    const uploaded = await imagekit.upload({
+      file: fileBuffer,
+      fileName,
+      folder: '/quotes',
+    });
+
+    // ✅ Save the quote
+    const newMedia = await Quotes.create({
+      type,
+      url: uploaded.url,
+      uploadedBy,
+      langId,
+      categoryId
+    });
+
+    // ✅ Give 10 points to user
+    user.points += 10;
+    await user.save();
+
+    // ✅ Add to point transaction history
+    await PointTransactionHistory.create({
+      user: user._id,
+      deductedPoints: 10,
+      type: 'quote', // ✅ Add this to enum in your schema
+      description: `You earned 10 points for uploading a ${type} quote.`,
+    });
+
+    // ✅ Send push notification to all users (optional)
+    const users = await User.find({ fcmToken: { $exists: true, $ne: null } });
+
+    const title = `New ${type === 'image' ? 'Image' : 'Video'} Quote`;
+    const body = `A new ${type} quote has been added for you.`;
+
+    for (let u of users) {
+      try {
+        const imageUrl = type === 'image' ? uploaded.url : null;
+        await sendNotification(u.fcmToken, title, body, imageUrl);
+      } catch (err) {
+        console.error(`Failed to notify user ${u._id}`, err.message);
+      }
+    }
+
+    res.status(201).json({
+      success: true,
+      message: `${type} quote uploaded and points rewarded`,
+      data: newMedia
+    });
+
+  } catch (err) {
+    console.error("Upload Error:", err);
+    res.status(500).json({ success: false, message: 'Upload failed', error: err.message });
+  }
+};
+
+
+
 module.exports = {
   uploadQuoteMedia,
   deleteQuote,
@@ -209,5 +244,6 @@ module.exports = {
   getAllQuotes,
   getQuoteById,
   getQuotesByCategory,
-  getQuotesByLanguage
+  getQuotesByLanguage,
+  uploadQuoteMediaByUser
 };

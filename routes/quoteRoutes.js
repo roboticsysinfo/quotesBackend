@@ -8,7 +8,8 @@ const {
   getAllQuotes,
   getQuoteById,
   getQuotesByCategory,
-  getQuotesByLanguage
+  getQuotesByLanguage,
+  uploadQuoteMediaByUser
 } = require('../controllers/quoteController');
 const { protect, adminOnly } = require("../middleware/authMiddleware");
 
@@ -29,5 +30,10 @@ router.delete('/delete-quote/:id', protect, adminOnly, deleteQuote);
 
 // 🟠 Update
 router.put('/update-quote/:id', protect, adminOnly, updateQuote);
+
+
+// POST - Create by User and Uploaded by User
+router.post('/by/user/upload-quote', protect, upload.single('quoteImage'), uploadQuoteMediaByUser);
+
 
 module.exports = router;
