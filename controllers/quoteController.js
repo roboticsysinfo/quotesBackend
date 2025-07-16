@@ -1,6 +1,7 @@
 const Quotes = require('../models/quotesModel');
 const imagekit = require('../utils/imagekit');
 const User = require('../models/userModel'); // Import user model
+const PointTransactionHistory = require('../models/PointTransactionsHistory');
 const sendNotification = require('../utils/fcm'); // Import notification util
 
 
