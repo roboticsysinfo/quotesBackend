@@ -33,7 +33,7 @@ router.put('/update-quote/:id', protect, adminOnly, updateQuote);
 
 
 // POST - Create by User and Uploaded by User
-router.post('/by/user/upload-quote', protect, upload.single('quoteImage'), uploadQuoteMediaByUser);
+router.post('/by/user/upload-quote', protect, upload.single('media'), uploadQuoteMediaByUser);
 
 
 module.exports = router;
