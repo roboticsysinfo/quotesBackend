@@ -1,6 +1,6 @@
 const User = require('../models/userModel');
-const PointTransactionHistory = require('../models/PointTransactionsHistory');
 const generateToken = require('../utils/generateToken');
+const PointTransactionHistory = require('../models/PointTransactionsHistory');
 
 
 // 🟢 SIGNUP with referral system + reward points
