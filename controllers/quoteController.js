@@ -79,26 +79,58 @@ const deleteQuote = async (req, res) => {
   }
 };
 
+
 // ✏️ Update/Edit Quote
 const updateQuote = async (req, res) => {
   try {
-    const { langId, categoryId } = req.body;
+    const { langId, categoryId, type = 'image', uploadedBy = 'admin' } = req.body;
+    const { id } = req.params;
 
-    const updated = await Quotes.findByIdAndUpdate(
-      req.params.id,
-      { langId, categoryId },
-      { new: true }
-    );
+    if (!langId || !categoryId || !type) {
+      return res.status(400).json({ success: false, message: 'All fields are required' });
+    }
 
-    if (!updated) {
+    let updateData = {
+      langId,
+      categoryId,
+      type,
+      uploadedBy,
+    };
+
+    // ✅ If file uploaded, upload to ImageKit and add URL
+    if (req.file) {
+      const fileBuffer = req.file.buffer;
+      const fileName = `quote-${Date.now()}-${req.file.originalname}`;
+
+      const uploaded = await imagekit.upload({
+        file: fileBuffer,
+        fileName,
+        folder: '/quotes',
+      });
+
+      updateData.url = uploaded.url;
+    }
+
+    const updatedQuote = await Quotes.findByIdAndUpdate(id, updateData, { new: true });
+
+    if (!updatedQuote) {
       return res.status(404).json({ success: false, message: 'Quote not found' });
     }
 
-    res.status(200).json({ success: true, message: 'Quote updated successfully', data: updated });
+    res.status(200).json({
+      success: true,
+      message: 'Quote updated successfully',
+      data: updatedQuote
+    });
+
   } catch (err) {
+    console.error('Update Error:', err);
     res.status(500).json({ success: false, message: 'Update failed', error: err.message });
   }
 };
+
+
+
 
 // 📄 Get All Quotes
 const getAllQuotes = async (req, res) => {

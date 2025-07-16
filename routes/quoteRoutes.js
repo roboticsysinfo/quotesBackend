@@ -29,7 +29,7 @@ router.get('/quotes/by-language/:langId', getQuotesByLanguage);
 router.delete('/delete-quote/:id', protect, adminOnly, deleteQuote);
 
 // 🟠 Update
-router.put('/update-quote/:id', protect, adminOnly, updateQuote);
+router.put('/update-quote/:id', upload.single('media'), protect, adminOnly, updateQuote);
 
 
 // POST - Create by User and Uploaded by User
