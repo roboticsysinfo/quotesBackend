@@ -236,7 +236,6 @@ const uploadQuoteMediaByUser = async (req, res) => {
 };
 
 
-
 module.exports = {
   uploadQuoteMedia,
   deleteQuote,
