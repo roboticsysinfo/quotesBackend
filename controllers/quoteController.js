@@ -5,68 +5,6 @@ const PointTransactionHistory = require('../models/PointTransactionsHistory');
 const sendNotification = require('../utils/fcm'); // Import notification util
 
 
-// const uploadQuoteMedia = async (req, res) => {
-//   try {
-//     const { uploadedBy = 'admin', langId, categoryId, type } = req.body;
-
-//     if (!req.file) {
-//       return res.status(400).json({ success: false, message: 'File is required' });
-//     }
-
-//     if (!['image', 'video'].includes(type)) {
-//       return res.status(400).json({ success: false, message: 'Invalid media type' });
-//     }
-
-//     const fileBuffer = req.file.buffer;
-//     const fileName = `quote-${Date.now()}-${req.file.originalname}`;
-
-//     const uploaded = await imagekit.upload({
-//       file: fileBuffer,
-//       fileName,
-//       folder: '/quotes',
-//     });
-
-//     const newMedia = await Quotes.create({
-//       type,
-//       url: uploaded.url,
-//       uploadedBy,
-//       langId,
-//       categoryId
-//     });
-
-//     // ✅ 🔔 Notification logic added here
-//     const users = await User.find({ fcmToken: { $exists: true, $ne: null } });
-
-//     const title = `New ${type === 'image' ? 'Image' : 'Video'} Quote`;
-//     const body = `A new ${type === 'image' ? 'image' : 'video'} quote has been added for you.`;
-
-
-//     for (let user of users) {
-//       try {
-//         const imageUrl = type === 'image' ? uploaded.url : null; // ✅ only if it's image
-//         await sendNotification(user.fcmToken, title, body, imageUrl);
-//       } catch (err) {
-//         console.error(`Failed to notify user ${user._id}`, err.message);
-//       }
-//     }
-
-
-//     res.status(201).json({
-//       success: true,
-//       message: `${type} uploaded successfully`,
-//       data: newMedia
-//     });
-
-//   } catch (err) {
-//     console.error("Upload Error:", err);
-//     res.status(500).json({ success: false, message: 'Upload failed', error: err.message });
-//   }
-// };
-
-
-// ❌ Delete Quote
-
-
 const uploadQuoteMedia = async (req, res) => {
   try {
     const { uploadedBy = 'admin', langId, categoryId, type } = req.body;
@@ -79,59 +17,54 @@ const uploadQuoteMedia = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid media type' });
     }
 
-    let mediaUrl = '';
+    const fileBuffer = req.file.buffer;
+    const fileName = `quote-${Date.now()}-${req.file.originalname}`;
 
-    if (type === 'image') {
-      // 🟢 Upload to ImageKit
-      const fileBuffer = req.file.buffer;
-      const fileName = `quote-${Date.now()}-${req.file.originalname}`;
-      const uploaded = await imagekit.upload({
-        file: fileBuffer,
-        fileName,
-        folder: '/quotes',
-      });
-      mediaUrl = uploaded.url;
-    } else if (type === 'video') {
-      // 🔵 Local upload
-      mediaUrl = `${req.protocol}://${req.get('host')}/uploads/quotes/${req.file.filename}`;
-    }
+    const uploaded = await imagekit.upload({
+      file: fileBuffer,
+      fileName,
+      folder: '/quotes',
+    });
 
     const newMedia = await Quotes.create({
       type,
-      url: mediaUrl,
+      url: uploaded.url,
       uploadedBy,
       langId,
-      categoryId,
+      categoryId
     });
 
-    // 🔔 Notifications
+    // ✅ 🔔 Notification logic added here
     const users = await User.find({ fcmToken: { $exists: true, $ne: null } });
 
     const title = `New ${type === 'image' ? 'Image' : 'Video'} Quote`;
-    const body = `A new ${type} quote has been added for you.`;
+    const body = `A new ${type === 'image' ? 'image' : 'video'} quote has been added for you.`;
+
 
     for (let user of users) {
       try {
-        const imageUrl = type === 'image' ? mediaUrl : null;
+        const imageUrl = type === 'image' ? uploaded.url : null; // ✅ only if it's image
         await sendNotification(user.fcmToken, title, body, imageUrl);
       } catch (err) {
         console.error(`Failed to notify user ${user._id}`, err.message);
       }
     }
 
+
     res.status(201).json({
       success: true,
       message: `${type} uploaded successfully`,
-      data: newMedia,
+      data: newMedia
     });
+
   } catch (err) {
-    console.error('Upload Error:', err);
+    console.error("Upload Error:", err);
     res.status(500).json({ success: false, message: 'Upload failed', error: err.message });
   }
 };
 
 
-
+// ❌ Delete Quote
 
 const deleteQuote = async (req, res) => {
   try {
