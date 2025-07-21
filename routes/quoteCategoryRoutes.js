@@ -5,7 +5,8 @@ const {
   getCategoryById,
   createCategory,
   updateCategory,
-  deleteCategory
+  deleteCategory,
+  getFeaturedCategories
 } = require('../controllers/quoteCategoryController');
 const { adminOnly, protect } = require('../middleware/authMiddleware');
 
@@ -23,5 +24,8 @@ router.put('/update/category/:id', protect, adminOnly, updateCategory);
 
 // DELETE
 router.delete('/delete/category/:id', protect, adminOnly, deleteCategory);
+
+// GET one
+router.get('/featured-categories', getFeaturedCategories);
 
 module.exports = router;
