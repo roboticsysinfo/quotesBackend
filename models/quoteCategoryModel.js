@@ -6,7 +6,8 @@ const quoteCategorySchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true
-  }
+  },
+  isFeatured: { type: Boolean, default: false }
 }, {
   timestamps: true
 });

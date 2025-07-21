@@ -18,6 +18,24 @@ const getAllCategories = async (req, res) => {
   }
 };
 
+// GET featured categories
+const getFeaturedCategories = async (req, res) => {
+  try {
+    const featured = await QuoteCategory.find({ isFeatured: true }).sort({ name: 1 });
+    res.status(200).json({
+      success: true,
+      message: 'Featured categories fetched successfully',
+      data: featured
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch featured categories',
+      error: error.message
+    });
+  }
+};
+
 // GET category by ID
 const getCategoryById = async (req, res) => {
   try {
@@ -45,7 +63,8 @@ const getCategoryById = async (req, res) => {
 // CREATE new category
 const createCategory = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, isFeatured = false } = req.body;
+
     const exists = await QuoteCategory.findOne({ name });
     if (exists) {
       return res.status(400).json({
@@ -54,7 +73,7 @@ const createCategory = async (req, res) => {
       });
     }
 
-    const newCategory = await QuoteCategory.create({ name });
+    const newCategory = await QuoteCategory.create({ name, isFeatured });
     res.status(201).json({
       success: true,
       message: 'Category created successfully',
@@ -72,17 +91,21 @@ const createCategory = async (req, res) => {
 // UPDATE category
 const updateCategory = async (req, res) => {
   try {
+    const { name, isFeatured } = req.body;
+
     const updated = await QuoteCategory.findByIdAndUpdate(
       req.params.id,
-      { name: req.body.name },
+      { name, isFeatured },
       { new: true }
     );
+
     if (!updated) {
       return res.status(404).json({
         success: false,
         message: 'Category not found'
       });
     }
+
     res.status(200).json({
       success: true,
       message: 'Category updated successfully',
@@ -123,6 +146,7 @@ const deleteCategory = async (req, res) => {
 
 module.exports = {
   getAllCategories,
+  getFeaturedCategories, // new
   getCategoryById,
   createCategory,
   updateCategory,
