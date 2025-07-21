@@ -99,6 +99,9 @@ const updateCategory = async (req, res) => {
       { new: true }
     );
 
+    console.log("updated", updated);
+    
+
     if (!updated) {
       return res.status(404).json({
         success: false,
