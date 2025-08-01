@@ -192,11 +192,9 @@ const sendOTP = async (req, res) => {
 
 // ✅ VERIFY OTP
 const verifyOTP = async (req, res) => {
-
   const { phoneNumber, otp } = req.body;
 
   try {
-
     if (otp !== '1234') {
       return res.status(401).json({
         success: false,
@@ -212,24 +210,35 @@ const verifyOTP = async (req, res) => {
       });
     }
 
-    // ✅ Add 1 point to user
-    user.points = (user.points || 0) + 1;
+    // ✅ Check if already rewarded today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let pointsAdded = false;
+
+    if (!user.lastRewardDate || user.lastRewardDate < today) {
+      // Add 1 point
+      user.points = (user.points || 0) + 1;
+      user.lastRewardDate = new Date();
+      pointsAdded = true;
+
+      // Save point transaction history
+      await PointTransactionHistory.create({
+        user: user._id,
+        deductedPoints: 1, // earned points
+        type: 'daily_login',
+        description: 'Earned 1 Point for Daily Login'
+      });
+    }
+
     await user.save();
 
-    // ✅ Save point transaction history
-    await PointTransactionHistory.create({
-      user: user._id,
-      deductedPoints: 1, // ✅ Here it means "earned points"
-      type: 'daily_login',
-      description: 'Earned 1 Point for Daily Login'
-    });
-
-    // ✅ Generate token
+    // Generate token
     const token = generateToken(user);
 
     res.status(200).json({
       success: true,
-      message: 'Login successfull',
+      message: 'Login successful',
       token,
       data: {
         _id: user._id,
@@ -237,7 +246,8 @@ const verifyOTP = async (req, res) => {
         email: user.email,
         phoneNumber: user.phoneNumber,
         userRole: user.userRole,
-        points: user.points
+        points: user.points,
+        pointsAddedToday: pointsAdded
       }
     });
 
@@ -249,6 +259,7 @@ const verifyOTP = async (req, res) => {
     });
   }
 };
+
 
 
 
