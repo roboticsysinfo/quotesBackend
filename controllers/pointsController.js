@@ -82,11 +82,10 @@ const incrementReferralShareUser = async (req, res) => {
 const getUserReferralDetails = async (req, res) => {
   try {
     const userId = req.params.id;
-
     const user = await User.findById(userId).lean();
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const referredUsersRaw = await User.find({ referredBy: user.referralCode })
+    const referredUsersRaw = await User.find({ referredBy: userId })
       .select("name referralCode createdAt")
       .lean();
 

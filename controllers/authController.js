@@ -45,6 +45,9 @@ const signupUser = async (req, res) => {
 
     // 🎁 Reward points if inviter exists
     if (inviter) {
+      // 🔹 Increase referral downloads count
+      inviter.referralDownloads = (inviter.referralDownloads || 0) + 1;
+
       // Inviter gets 5 points
       inviter.points += 5;
       await inviter.save();
@@ -87,7 +90,6 @@ const signupUser = async (req, res) => {
     console.error(err);
     res.status(500).json({ success: false, message: 'Signup failed', error: err.message });
   }
-  
 };
 
 
