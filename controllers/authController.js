@@ -4,21 +4,14 @@ const PointTransactionHistory = require('../models/PointTransactionsHistory');
 
 
 // 🟢 SIGNUP with referral system + reward points
-
 const signupUser = async (req, res) => {
   try {
-
     const { name, email, password, phoneNumber, userRole, referredBy } = req.body;
 
     // Check if email already exists
     const existingEmail = await User.findOne({ email });
-
     if (existingEmail) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email already registered',
-        data: null
-      });
+      return res.status(400).json({ success: false, message: 'Email already registered' });
     }
 
     // Check phone number for duplication by role
@@ -27,83 +20,74 @@ const signupUser = async (req, res) => {
       if (existingPhone) {
         return res.status(400).json({
           success: false,
-          message: `Phone number already registered for ${userRole || 'user'}`,
-          data: null
+          message: `Phone number already registered for ${userRole || 'user'}`
         });
       }
     }
 
-    // Create the user (start with 0 points, will update later if referredBy)
+    let inviter = null;
+
+    // 🎯 If referredBy is given, find inviter by referralCode
+    if (referredBy) {
+      inviter = await User.findOne({ referralCode: referredBy });
+    }
+
+    // Create the user (set referredBy as ObjectId if inviter found)
     const user = await User.create({
       name,
       email,
       password,
       phoneNumber,
       userRole: userRole || 'user',
-      referredBy: referredBy || null,
+      referredBy: inviter ? inviter._id : null,
       points: 0
     });
 
-    // 🎁 Reward points if referral code is provided and valid
-    if (referredBy) {
-      const inviter = await User.findOne({ referralCode: referredBy });
+    // 🎁 Reward points if inviter exists
+    if (inviter) {
+      // Inviter gets 5 points
+      inviter.points += 5;
+      await inviter.save();
 
-      if (inviter) {
-        // Inviter gets 5 points
-        inviter.points += 5;
-        await inviter.save();
+      // Referred user gets 10 points
+      user.points += 10;
+      await user.save();
 
-        // Referred user gets 10 points
-        user.points += 10;
-        await user.save();
+      // ✅ Transaction log for inviter
+      await PointTransactionHistory.create({
+        user: inviter._id,
+        deductedPoints: 5,
+        type: 'referral',
+        description: `Earned 5 points by inviting ${user.name}`
+      });
 
-        // ✅ Transaction log for inviter
-        await PointTransactionHistory.create({
-          user: inviter._id,
-          deductedPoints: 5,
-          type: 'referral',
-          description: `Earned 5 points by inviting ${user.name}`
-        });
-
-        // ✅ Transaction log for referred user
-        await PointTransactionHistory.create({
-          user: user._id,
-          deductedPoints: 10,
-          type: 'referral',
-          description: `Earned 10 points for signing up using referral code of ${inviter.name}`
-        });
-
-      }
+      // ✅ Transaction log for referred user
+      await PointTransactionHistory.create({
+        user: user._id,
+        deductedPoints: 10,
+        type: 'referral',
+        description: `Earned 10 points for signing up using referral code of ${inviter.name}`
+      });
     }
 
     const token = generateToken(user);
+
+    // 🔄 Populate referredBy for response
+    const populatedUser = await User.findById(user._id)
+      .populate('referredBy', 'name email referralCode');
 
     res.status(201).json({
       success: true,
       message: 'Signup successful',
       token,
-      data: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        userRole: user.userRole,
-        referralCode: user.referralCode,
-        referredBy: user.referredBy,
-        points: user.points
-      }
+      data: populatedUser
     });
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({
-      success: false,
-      message: 'Signup failed',
-      error: err.message
-    });
+    res.status(500).json({ success: false, message: 'Signup failed', error: err.message });
   }
 };
-
 
 
 

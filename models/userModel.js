@@ -30,7 +30,11 @@ const userSchema = new mongoose.Schema({
     unique: true
   },
 
-  referredBy: { type: String }, // Referral Code of inviter
+  referredBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User', // Reference to inviter user
+    default: null
+  },
 
   points: { type: Number, default: 0 },
 

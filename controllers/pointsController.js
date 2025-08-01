@@ -37,7 +37,7 @@ const rewardDailyStayPointsUser = async (req, res) => {
 
 const incrementReferralShareUser = async (req, res) => {
   try {
-    const { userId } = req.body; // or use req.user.id
+    const { userId } = req.body;
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -48,7 +48,10 @@ const incrementReferralShareUser = async (req, res) => {
 
     if (lastShareDate === today) {
       if (user.todayReferralShareCount >= 3) {
-        return res.status(200).json({ message: "Daily share limit reached. Try again tomorrow." });
+        return res.status(200).json({
+          message: "Daily share limit reached. Try again tomorrow.",
+          limitReached: true
+        });
       }
       user.todayReferralShareCount += 1;
     } else {
@@ -68,15 +71,18 @@ const incrementReferralShareUser = async (req, res) => {
     });
 
     res.status(200).json({
-      message: "Referral share counted & points added",
+      message: `Referral share counted. You earned 1 point! Total points: ${user.points}`,
       points: user.points,
-      todayShareCount: user.todayReferralShareCount
+      todayShareCount: user.todayReferralShareCount,
+      limitReached: false
     });
 
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
+
 
 
 const getUserReferralDetails = async (req, res) => {
