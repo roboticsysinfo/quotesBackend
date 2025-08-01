@@ -229,7 +229,7 @@ const verifyOTP = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Login successful, You Earn 1 Points for Daily Login',
+      message: 'Login successfull',
       token,
       data: {
         _id: user._id,
