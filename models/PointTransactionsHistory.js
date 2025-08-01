@@ -15,7 +15,8 @@ const pointTransactionsHistorySchema = new mongoose.Schema({
         enum: [
             "referral",
             "redeem",
-            'quote'
+            'quote',
+            "daily_login"
         ],
         required: true,
     },
@@ -28,7 +29,5 @@ const pointTransactionsHistorySchema = new mongoose.Schema({
         default: Date.now,
     },
 });
-
-
 
 module.exports = mongoose.model("PointTransactionHistory", pointTransactionsHistorySchema);

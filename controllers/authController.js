@@ -38,7 +38,7 @@ const signupUser = async (req, res) => {
       phoneNumber,
       userRole: userRole || 'user',
       referredBy: referredBy || null,
-      points: referredBy ? 10 : 0 // 👈 referred user also gets 10 points
+      points: referredBy ? 1 : 0 // 👈 referred user also gets 1 points
     });
 
     // 🎁 Reward inviter if referralCode is valid
@@ -46,23 +46,23 @@ const signupUser = async (req, res) => {
       const inviter = await User.findOne({ referralCode: referredBy });
 
       if (inviter) {
-        inviter.points += 10;
+        inviter.points += 5;
         await inviter.save();
 
         // ✅ Log transaction for inviter
         await PointTransactionHistory.create({
           user: inviter._id,
-          deductedPoints: 10,
+          deductedPoints: 1,
           type: 'referral',
-          description: `Earned 10 points by inviting ${user.name}`
+          description: `Earned 1 points by inviting ${user.name}`
         });
 
         // ✅ Log transaction for referred user
         await PointTransactionHistory.create({
           user: user._id,
-          deductedPoints: 10,
+          deductedPoints: 5,
           type: 'referral',
-          description: `Earned 10 points for signing up using referral code of ${inviter.name}`
+          description: `Earned 5 points for signing up using referral code of ${inviter.name}`
         });
       }
     }
@@ -94,7 +94,6 @@ const signupUser = async (req, res) => {
     });
   }
 };
-
 
 
 // 🔐 LOGIN WITH EMAIL
@@ -158,39 +157,100 @@ const sendOTP = async (req, res) => {
 };
 
 // ✅ VERIFY OTP
+// const verifyOTP = async (req, res) => {
+//   const { phoneNumber, otp } = req.body;
+
+//   if (otp !== '1234') {
+//     return res.status(401).json({
+//       success: false,
+//       message: 'Invalid OTP'
+//     });
+//   }
+
+//   const user = await User.findOne({ phoneNumber });
+//   if (!user) {
+//     return res.status(404).json({
+//       success: false,
+//       message: 'User not found'
+//     });
+//   }
+
+//   const token = generateToken(user);
+
+//   res.status(200).json({
+//     success: true,
+//     message: 'Login successful via OTP',
+//     token,
+//     data: {
+//       _id: user._id,
+//       name: user.name,
+//       email: user.email,
+//       phoneNumber: user.phoneNumber,
+//       userRole: user.userRole
+//     }
+//   });
+// };
+
+
+// ✅ VERIFY OTP
 const verifyOTP = async (req, res) => {
   const { phoneNumber, otp } = req.body;
 
-  if (otp !== '1234') {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid OTP'
-    });
-  }
-
-  const user = await User.findOne({ phoneNumber });
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: 'User not found'
-    });
-  }
-
-  const token = generateToken(user);
-
-  res.status(200).json({
-    success: true,
-    message: 'Login successful via OTP',
-    token,
-    data: {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
-      userRole: user.userRole
+  try {
+    if (otp !== '1234') {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid OTP'
+      });
     }
-  });
+
+    const user = await User.findOne({ phoneNumber });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // ✅ Add 1 point to user
+    user.points = (user.points || 0) + 1;
+    await user.save();
+
+    // ✅ Save point transaction history
+    await PointTransactionHistory.create({
+      user: user._id,
+      deductedPoints: 1, // ✅ Here it means "earned points"
+      type: 'daily_login',
+      description: '1 point added for daily login.'
+    });
+
+    // ✅ Generate token
+    const token = generateToken(user);
+
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      token,
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        userRole: user.userRole,
+        points: user.points
+      }
+    });
+
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
 };
+
+
 
 module.exports = {
   signupUser,
