@@ -48,8 +48,8 @@ const signupUser = async (req, res) => {
       // 🔹 Increase referral downloads count
       inviter.referralDownloads = (inviter.referralDownloads || 0) + 1;
 
-      // Inviter gets 5 points
-      inviter.points += 5;
+      // Inviter gets 10 points
+      inviter.points += 10;
       await inviter.save();
 
       // Referred user gets 10 points
@@ -59,9 +59,9 @@ const signupUser = async (req, res) => {
       // ✅ Transaction log for inviter
       await PointTransactionHistory.create({
         user: inviter._id,
-        deductedPoints: 5,
+        deductedPoints: 10,
         type: 'referral',
-        description: `Earned 5 points by inviting ${user.name}`
+        description: `Earned 10 points by inviting ${user.name}`
       });
 
       // ✅ Transaction log for referred user
