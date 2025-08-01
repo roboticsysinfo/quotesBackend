@@ -87,6 +87,7 @@ const signupUser = async (req, res) => {
     console.error(err);
     res.status(500).json({ success: false, message: 'Signup failed', error: err.message });
   }
+  
 };
 
 
