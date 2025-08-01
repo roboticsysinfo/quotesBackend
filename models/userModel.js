@@ -32,7 +32,16 @@ const userSchema = new mongoose.Schema({
 
   referredBy: { type: String }, // Referral Code of inviter
 
-  points: { type: Number, default: 0 }
+  points: { type: Number, default: 0 },
+
+  // 🆕 Tracking fields for stay & share limits
+  lastRewardDate: { type: Date },
+  lastReferralShareDate: { type: Date },
+  todayReferralShareCount: { type: Number, default: 0 },
+  referralShares: { type: Number, default: 0 },
+  referralDownloads: { type: Number, default: 0 }
+
+
 
 }, { timestamps: true });
 

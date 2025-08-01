@@ -4,15 +4,17 @@ const connectDB = require('./config/db');
 require('dotenv').config();
 const path = require('path');
 
-const languageRoutes = require("./routes/languageRoutes")
+const languageRoutes = require("./routes/languageRoutes");
 const quoteCategoryRoutes = require("./routes/quoteCategoryRoutes");
 const favQuoteRoutes = require("./routes/favQuoteRoutes");
 const authRoutes = require("./routes/authRoutes");
 const quoteImageRoutes = require('./routes/quoteImageRoutes');
-const statusRoutes = require('./routes/statusRoutes')
-const userRoutes = require('./routes/userRoutes')
-const quoteRoutes = require('./routes/quoteRoutes')
-const redeemProductRoutes = require('./routes/redeemProductRoutes')
+const statusRoutes = require('./routes/statusRoutes');
+const userRoutes = require('./routes/userRoutes');
+const quoteRoutes = require('./routes/quoteRoutes');
+const redeemProductRoutes = require('./routes/redeemProductRoutes');
+const pointsRoutes = require('./routes/pointsRoutes');
+
 
 const app = express();
 
@@ -36,10 +38,11 @@ app.use('/api', languageRoutes);
 app.use('/api', quoteCategoryRoutes);
 app.use('/api', favQuoteRoutes);
 app.use('/api', quoteImageRoutes);
-app.use('/api', statusRoutes)
-app.use('/api', userRoutes)
-app.use('/api', quoteRoutes)
-app.use('/api', redeemProductRoutes)
+app.use('/api', statusRoutes);
+app.use('/api', userRoutes);
+app.use('/api', quoteRoutes);
+app.use('/api', redeemProductRoutes);
+app.use('/api', pointsRoutes);
 
 // ========= Routes end=============
 

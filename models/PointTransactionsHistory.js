@@ -15,8 +15,10 @@ const pointTransactionsHistorySchema = new mongoose.Schema({
         enum: [
             "referral",
             "redeem",
-            'quote',
-            "daily_login"
+            "quote",
+            "daily_login",
+            "daily_stay", 
+            "daily_share" 
         ],
         required: true,
     },
