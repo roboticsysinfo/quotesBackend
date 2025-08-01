@@ -221,7 +221,7 @@ const verifyOTP = async (req, res) => {
       user: user._id,
       deductedPoints: 1, // ✅ Here it means "earned points"
       type: 'daily_login',
-      description: '1 point added for daily login.'
+      description: 'Earned 1 Point for Daily Login'
     });
 
     // ✅ Generate token
