@@ -4,12 +4,15 @@ const PointTransactionHistory = require('../models/PointTransactionsHistory');
 
 
 // 🟢 SIGNUP with referral system + reward points
+
 const signupUser = async (req, res) => {
   try {
+
     const { name, email, password, phoneNumber, userRole, referredBy } = req.body;
 
     // Check if email already exists
     const existingEmail = await User.findOne({ email });
+
     if (existingEmail) {
       return res.status(400).json({
         success: false,
@@ -30,7 +33,7 @@ const signupUser = async (req, res) => {
       }
     }
 
-    // Create the user
+    // Create the user (start with 0 points, will update later if referredBy)
     const user = await User.create({
       name,
       email,
@@ -38,32 +41,38 @@ const signupUser = async (req, res) => {
       phoneNumber,
       userRole: userRole || 'user',
       referredBy: referredBy || null,
-      points: referredBy ? 1 : 0 // 👈 referred user also gets 1 points
+      points: 0
     });
 
-    // 🎁 Reward inviter if referralCode is valid
+    // 🎁 Reward points if referral code is provided and valid
     if (referredBy) {
       const inviter = await User.findOne({ referralCode: referredBy });
 
       if (inviter) {
+        // Inviter gets 5 points
         inviter.points += 5;
         await inviter.save();
 
-        // ✅ Log transaction for inviter
+        // Referred user gets 10 points
+        user.points += 10;
+        await user.save();
+
+        // ✅ Transaction log for inviter
         await PointTransactionHistory.create({
           user: inviter._id,
-          deductedPoints: 1,
-          type: 'referral',
-          description: `Earned 1 points by inviting ${user.name}`
-        });
-
-        // ✅ Log transaction for referred user
-        await PointTransactionHistory.create({
-          user: user._id,
           deductedPoints: 5,
           type: 'referral',
-          description: `Earned 5 points for signing up using referral code of ${inviter.name}`
+          description: `Earned 5 points by inviting ${user.name}`
         });
+
+        // ✅ Transaction log for referred user
+        await PointTransactionHistory.create({
+          user: user._id,
+          deductedPoints: 10,
+          type: 'referral',
+          description: `Earned 10 points for signing up using referral code of ${inviter.name}`
+        });
+
       }
     }
 
@@ -94,6 +103,8 @@ const signupUser = async (req, res) => {
     });
   }
 };
+
+
 
 
 // 🔐 LOGIN WITH EMAIL
@@ -194,9 +205,11 @@ const sendOTP = async (req, res) => {
 
 // ✅ VERIFY OTP
 const verifyOTP = async (req, res) => {
+
   const { phoneNumber, otp } = req.body;
 
   try {
+
     if (otp !== '1234') {
       return res.status(401).json({
         success: false,

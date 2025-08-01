@@ -293,13 +293,13 @@ const uploadQuoteMediaByUser = async (req, res) => {
     });
 
     // ✅ Give 10 points to user
-    user.points += 10;
+    user.points += 3;
     await user.save();
 
     // ✅ Add to point transaction history
     await PointTransactionHistory.create({
       user: user._id,
-      deductedPoints: 10,
+      deductedPoints: 3,
       type: 'quote', // ✅ Add this to enum in your schema
       description: `You earned 10 points for uploading a ${type} quote.`,
     });

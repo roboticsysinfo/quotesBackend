@@ -7,7 +7,7 @@ const rewardDailyStayPointsUser = async (req, res) => {
   const userId = req.user.id; // from auth middleware
 
   try {
-    
+
     const user = await User.findById(userId);
     const today = new Date().toDateString();
 
@@ -15,7 +15,7 @@ const rewardDailyStayPointsUser = async (req, res) => {
       return res.status(400).json({ message: "Already rewarded today" });
     }
 
-    const rewardPoints = 5;
+    const rewardPoints = 2;
     user.points += rewardPoints;
     user.lastRewardDate = new Date();
     await user.save();
@@ -24,7 +24,7 @@ const rewardDailyStayPointsUser = async (req, res) => {
       user: user._id,
       deductedPoints: rewardPoints,
       type: "daily_stay",
-      description: "Daily 15-min stay reward"
+      description: "Daily 10-min stay reward"
     });
 
     res.json({ message: `${rewardPoints} points rewarded`, points: user.points });
