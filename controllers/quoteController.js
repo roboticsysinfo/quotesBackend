@@ -256,6 +256,7 @@ const getQuotesByLanguage = async (req, res) => {
 
 
 // POST -- Quote Upload by User and Create by User
+// POST -- Quote Upload by User and Create by User
 const uploadQuoteMediaByUser = async (req, res) => {
   try {
     const { langId, categoryId, type } = req.body;
@@ -264,6 +265,25 @@ const uploadQuoteMediaByUser = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // ✅ Daily upload limit check (max 2 per day)
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const todaysUploads = await Quotes.countDocuments({
+      uploadedBy,
+      createdAt: { $gte: startOfDay, $lte: endOfDay }
+    });
+
+    if (todaysUploads >= 2) {
+      return res.status(400).json({
+        success: false,
+        message: "You can only upload 2 quotes per day."
+      });
     }
 
     if (!req.file) {
@@ -292,7 +312,7 @@ const uploadQuoteMediaByUser = async (req, res) => {
       categoryId
     });
 
-    // ✅ Give 10 points to user
+    // ✅ Give 3 points to user
     user.points += 3;
     await user.save();
 
@@ -300,8 +320,8 @@ const uploadQuoteMediaByUser = async (req, res) => {
     await PointTransactionHistory.create({
       user: user._id,
       deductedPoints: 3,
-      type: 'quote', // ✅ Add this to enum in your schema
-      description: `You earned 10 points for uploading a ${type} quote.`,
+      type: 'quote',
+      description: `You earned 3 points for uploading a ${type} quote.`,
     });
 
     // ✅ Send push notification to all users (optional)
@@ -330,6 +350,8 @@ const uploadQuoteMediaByUser = async (req, res) => {
     res.status(500).json({ success: false, message: 'Upload failed', error: err.message });
   }
 };
+
+
 
 
 module.exports = {
