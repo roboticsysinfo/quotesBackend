@@ -180,7 +180,7 @@ const sendOTP = async (req, res) => {
 
     // Save OTP with 1 min expiry
     const expiresAt = new Date(Date.now() + 60 * 1000);
-    await UserOTPModel.create({ phone: phoneNumber, otp, expiresAt });
+    await OTPModel.create({ phone: phoneNumber, otp, expiresAt });
 
     res.status(200).json({
       success: true,
@@ -215,7 +215,7 @@ const verifyOTP = async (req, res) => {
     }
 
     // OTP valid → delete
-    await UserOTPModel.deleteMany({ phone: phoneNumber });
+    await OTPModel.deleteMany({ phone: phoneNumber });
 
     const user = await User.findOne({ phoneNumber });
     if (!user) {
