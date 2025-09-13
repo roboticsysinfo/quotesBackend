@@ -8,7 +8,7 @@ const {
 const { protect } = require("../middleware/authMiddleware"); // ensure JWT protection
 
 
-// 🟦 Daily 15 min stay reward
+// 🟦 Daily 10 min stay reward
 router.post("/daily-stay", protect, rewardDailyStayPointsUser);
 
 // 🟧 Referral share count & points
