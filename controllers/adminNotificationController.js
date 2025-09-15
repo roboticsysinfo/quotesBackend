@@ -8,14 +8,13 @@ const createAdminNotification = async (req, res) => {
   try {
     const { title, body, imageUrl } = req.body;
 
-    // 1️⃣ Save to DB
     const notification = new AdminNotification({ title, body, imageUrl });
     await notification.save();
 
-    // 2️⃣ Get all user FCM tokens (excluding null/empty ones)
+    // Get all users with token
     const users = await User.find({ fcmToken: { $exists: true, $ne: null } }).select("fcmToken");
 
-    // 3️⃣ Send Push Notification to all users
+    // Send notification safely (string or array)
     const sendPromises = users.map(user =>
       sendNotification(user.fcmToken, title, body, imageUrl)
     );
@@ -23,7 +22,7 @@ const createAdminNotification = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Admin notification created & sent to all users successfully",
+      message: "Admin notification created & sent successfully",
       data: notification,
     });
   } catch (error) {
@@ -31,6 +30,8 @@ const createAdminNotification = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+
 
 // GET All Notifications (latest 20, new on top) & unread count
 const getAdminNotifications = async (req, res) => {
