@@ -9,22 +9,39 @@ if (!admin.apps.length) {
 }
 
 const sendNotification = async (fcmToken, title, body, imageUrl = null) => {
-  const message = {
-    notification: { title, body },
-    token: fcmToken,
-    android: {},
-    apns: {},
-  };
+  try {
+    if (!fcmToken) {
+      console.warn("⚠️ Skipping notification: Empty fcmToken");
+      return;
+    }
 
-  if (imageUrl) {
-    message.android.notification = { image: imageUrl };
-    message.apns = {
-      payload: { aps: { "mutable-content": 1 } },
-      fcm_options: { image: imageUrl },
+    const message = {
+      notification: { title, body },
+      token: fcmToken,
+      android: {},
+      apns: {},
     };
-  }
 
-  await admin.messaging().send(message);
+    if (imageUrl) {
+      message.android.notification = { image: imageUrl };
+      message.apns = {
+        payload: { aps: { "mutable-content": 1 } },
+        fcm_options: { image: imageUrl },
+      };
+    }
+
+    const response = await admin.messaging().send(message);
+    console.log("✅ Notification sent:", response);
+    return response;
+  } catch (error) {
+    console.error("❌ Error sending notification:", error.code, error.message);
+
+    // अगर token invalid है तो user DB से delete कर सकते हो
+    if (error.code === "messaging/invalid-argument" || error.code === "messaging/registration-token-not-registered") {
+      console.warn("⚠️ Invalid FCM Token:", fcmToken);
+      // 👉 यहां DB से इस token को हटा सकते हो
+    }
+  }
 };
 
 module.exports = sendNotification;
