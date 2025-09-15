@@ -7,6 +7,7 @@ const adminNotificationSchema = new mongoose.Schema(
     body: { type: String, required: true },
     imageUrl: { type: String, default: null },
     createdBy: { type: String, default: "Admin" }, // always admin
+    isRead: { type: Boolean, default: false }
   },
   { timestamps: true }
 );
