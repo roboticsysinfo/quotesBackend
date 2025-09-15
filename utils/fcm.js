@@ -11,16 +11,16 @@ if (!admin.apps.length) {
 
 /**
  * Send Push Notification to multiple users
- * @param {Array} fcmTokens - Array of Firebase device tokens
+ * @param {Array} fcmToken - Array of Firebase device tokens
  * @param {String} title - Notification title
  * @param {String} body - Notification body
  * @param {String|null} imageUrl - Optional image URL
  */
-const sendNotification = async (fcmTokens = [], title, body, imageUrl = null) => {
-  if (!fcmTokens.length) return { success: false, message: "No tokens provided" };
+const sendNotification = async (fcmToken = [], title, body, imageUrl = null) => {
+  if (!fcmToken.length) return { success: false, message: "No tokens provided" };
 
   // Prepare messages
-  const messages = fcmTokens.map(token => {
+  const messages = fcmToken.map(token => {
     const msg = {
       notification: { title, body },
       token,
@@ -51,9 +51,9 @@ const sendNotification = async (fcmTokens = [], title, body, imageUrl = null) =>
           err.code === "messaging/registration-token-not-registered" ||
           err.code === "messaging/invalid-argument"
         ) {
-          invalidTokens.push(fcmTokens[idx]);
+          invalidTokens.push(fcmToken[idx]);
         } else {
-          console.error(`❌ Failed for token ${fcmTokens[idx]}:`, err.message);
+          console.error(`❌ Failed for token ${fcmToken[idx]}:`, err.message);
         }
       }
     });
