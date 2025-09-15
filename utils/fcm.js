@@ -1,9 +1,12 @@
+// services/push.service.js
 const admin = require("firebase-admin");
 const serviceAccount = require("../quotevaani-firebase-adminsdk-fbsvc-b83b7fc720.json");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+}
 
 const sendNotification = async (fcmToken, title, body, imageUrl = null) => {
   const message = {
@@ -16,14 +19,8 @@ const sendNotification = async (fcmToken, title, body, imageUrl = null) => {
   if (imageUrl) {
     message.android.notification = { image: imageUrl };
     message.apns = {
-      payload: {
-        aps: {
-          "mutable-content": 1,
-        },
-      },
-      fcm_options: {
-        image: imageUrl,
-      },
+      payload: { aps: { "mutable-content": 1 } },
+      fcm_options: { image: imageUrl },
     };
   }
 

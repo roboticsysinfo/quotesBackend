@@ -14,7 +14,7 @@ const userRoutes = require('./routes/userRoutes');
 const quoteRoutes = require('./routes/quoteRoutes');
 const redeemProductRoutes = require('./routes/redeemProductRoutes');
 const pointsRoutes = require('./routes/pointsRoutes');
-
+const adminNotificatoinRoutes = require('./routes/adminNotificatoinRoutes');
 
 const app = express();
 
@@ -43,6 +43,7 @@ app.use('/api', userRoutes);
 app.use('/api', quoteRoutes);
 app.use('/api', redeemProductRoutes);
 app.use('/api', pointsRoutes);
+app.use('/api', adminNotificatoinRoutes);
 
 // ========= Routes end=============
 
